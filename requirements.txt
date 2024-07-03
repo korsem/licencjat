@@ -1,0 +1,6 @@
+Django
+djangorestframework
+mysqlclient
+django-filter
+django-environ
+psycopg2
