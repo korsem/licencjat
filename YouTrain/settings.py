@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'YouTrain.urls'
@@ -78,15 +79,10 @@ WSGI_APPLICATION = 'YouTrain.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 import environ
+
 env = environ.Env()
 environ.Env.read_env()
 
-# Debugging output
-print("DB_NAME:", env("DB_NAME", default=""))
-print("DB_USER:", env("DB_USER", default=""))
-print("DB_PASSWORD:", env("DB_PASSWORD", default=""))
-print("DB_HOST:", env("DB_HOST", default=""))
-print("DB_PORT:", env("DB_PORT", default=""))
 
 DATABASES = {
     'default': {
@@ -95,7 +91,7 @@ DATABASES = {
         'USER': env("DB_USER"),
         'PASSWORD': env("DB_PASSWORD"),
         'HOST': env("DB_HOST"),
-        'PORT': 5432,
+        'PORT': env("DB_PORT"),
     }
 }
 
