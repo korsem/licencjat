@@ -4,3 +4,5 @@ mysqlclient
 django-filter
 django-environ
 psycopg2
+django-crispy-forms
+crispy-bootstrap5

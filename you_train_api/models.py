@@ -7,8 +7,8 @@ from you_train_api.choices import MUSCLE_GROUP_CHOICES, EQUIPMENT_CHOICES
 
 
 class User(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
+    username = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -18,7 +18,8 @@ class User(models.Model):
 
 class Equipment(models.Model):
     '''
-    ciężar do sprzętu, jeszcze nie jestem przekonana do tegop modelu, może po prostu zrobić nazwe choices i dodać do Exercise
+    ciężar do sprzętu, może po prostu zrobić nazwe choices i dodać do Exercise
+    umożliwiłoby to wyszukiwanie treningów i ćwiczeń po sprzęcie i dodawanie sprzętów posiadanych przez użytkownika
     '''
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=300, blank=True)
@@ -34,11 +35,10 @@ class Exercise(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
     muscle_group = models.CharField(max_length=100, blank=True, choices=MUSCLE_GROUP_CHOICES) # dodać choices
-    # może jako equipment dodac model Equipment i zrobić relację many to many? umożliwiłoby to wyszukiwanie treningów i ćwiczeń po sprzęcie i dodawanie sprzętów posiadanych przez użytkownika
     equipment = models.ForeignKey(Equipment, on_delete=models.SET_NULL, related_name='excercises', blank=True, null=True)
     is_cardio = models.BooleanField(default=False, help_text="Czy ćwiczenie jest cardio?") # jeśli tak to nie ma reps, tylko duration oraz muscle_group = cardio
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # video_url = models.URLField(blank=True, help_text="Link do filmiku instruktażowego z ćwiczeniem")
+    video_url = models.URLField(blank=True, help_text="Link do filmiku instruktażowego z ćwiczeniem")
 
     def __str__(self):
         return self.name
@@ -57,6 +57,12 @@ class TrainingPlan(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user'], condition=models.Q(is_active=True),
+                                    name='unique_active_training_plan_per_user')
+        ]
+
 class WorkoutPlan(models.Model):
     '''
     Określa czy plan treningowy przebiega cyklicznie, jeśli tak to jak często (cyklicznie - poki co po tygodniu)
@@ -65,7 +71,7 @@ class WorkoutPlan(models.Model):
     '''
     training_plan = models.OneToOneField(TrainingPlan, related_name='workout_plan', on_delete=models.CASCADE)
     is_cyclic = models.BooleanField(default=False, help_text="Czy powtarza się co tydzień?") # if true cycle_number is required
-    cycle_length = models.IntegerField(default=1, help_text="Ile tygodni ma trwać Plan?") # one cycle - one week
+    cycle_length = models.PositiveIntegerField(default=1, help_text="Ile tygodni ma trwać Plan?") # one cycle - one week
 
     def __str__(self):
         return f"{self.training_plan.title} (cyclic: {self.is_cyclic})"
