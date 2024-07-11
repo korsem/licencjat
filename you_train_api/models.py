@@ -1,20 +1,21 @@
 import calendar
 
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES, EQUIPMENT_CHOICES
 
 
-class User(models.Model):
-    username = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
+# class User(models.Model):
+#     username = models.CharField(max_length=100)
+#     email = models.EmailField(unique=True)
+#     password = models.CharField(max_length=100)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#
+#     def __str__(self):
+#         return self.name
 
 class Equipment(models.Model):
     '''

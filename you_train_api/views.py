@@ -60,16 +60,13 @@ def sign_up(request):
 def exercise_list(request):
     if request.method == 'POST':
         form = ExerciseForm(request.POST)
-        print("uhuhuhuhuhuh")
-        print(form)
         if form.is_valid():
             exercise = form.save(commit=False)
-            exercise.user_id = User.objects.get(id=request.user.id)
+            exercise.user = request.user
             exercise.save()
             return redirect('exercise_list')
     else:
         form = ExerciseForm()
-    # ValueError: Cannot query "toja123": Must be "User" instance. ?
-    exercises = Exercise.objects.filter(user__id=request.user.id)
+    exercises = Exercise.objects.filter(user=request.user)
     return render(request, 'you_train_api/exercise_list.html', {'exercises': exercises, 'form': form})
 
