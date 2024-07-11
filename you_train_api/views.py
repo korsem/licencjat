@@ -38,7 +38,7 @@ def home(request):
         #         except:
         #             pass
 
-    return render(request, 'home.html', {"posts": "mhm"})
+    return render(request, 'main/home.html', {"posts": "mhm"})
 
 
 # @login_required(login_url="/login")
@@ -68,3 +68,4 @@ def sign_up(request):
         form = RegisterForm()
 
     return render(request, 'registration/sign_up.html', {"form": form})
+
