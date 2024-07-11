@@ -35,7 +35,7 @@ class Exercise(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
     muscle_group = models.CharField(max_length=100, blank=True, choices=MUSCLE_GROUP_CHOICES) # dodać choices
-    equipment = models.ForeignKey(Equipment, on_delete=models.SET_NULL, related_name='excercises', blank=True, null=True)
+    equipment = models.ForeignKey(Equipment, on_delete=models.SET_NULL, related_name='exercises', blank=True, null=True)
     is_cardio = models.BooleanField(default=False, help_text="Czy ćwiczenie jest cardio?") # jeśli tak to nie ma reps, tylko duration oraz muscle_group = cardio
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video_url = models.URLField(blank=True, help_text="Link do filmiku instruktażowego z ćwiczeniem")

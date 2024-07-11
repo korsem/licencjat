@@ -3,8 +3,11 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
+from rest_framework import generics
 
-from you_train_api.forms import RegisterForm
+from you_train_api.forms import RegisterForm, ExerciseForm
+from you_train_api.models import Exercise
+from you_train_api.serializers import ExerciseSerializer
 
 
 @api_view(['GET'])
@@ -13,48 +16,32 @@ def home(request):
 
 @login_required(login_url="/login")
 def home(request):
-    # posts = Post.objects.all()
-
+    exercises = Exercise.objects.all()
+    print(exercises)
     if request.method == "POST":
-        post_id = request.POST.get("post-id")
+        exercise_id = request.POST.get("exercise-id")
         user_id = request.POST.get("user-id")
-        #
-        # if post_id:
-        #     post = Post.objects.filter(id=post_id).first()
-        #     if post and (post.author == request.user or request.user.has_perm("main.delete_post")):
-        #         post.delete()
-        # elif user_id:
-        #     user = User.objects.filter(id=user_id).first()
-        #     if user and request.user.is_staff:
-        #         try:
-        #             group = Group.objects.get(name='default')
-        #             group.user_set.remove(user)
-        #         except:
-        #             pass
-        #
-        #         try:
-        #             group = Group.objects.get(name='mod')
-        #             group.user_set.remove(user)
-        #         except:
-        #             pass
 
-    return render(request, 'main/home.html', {"posts": "mhm"})
+        if exercise_id:
+            exercise = Exercise.objects.filter(id=exercise_id).first()
+            if exercise and (exercise.author == request.user or request.user.has_perm("main.delete_exercise")):
+                exercise.delete()
+        elif user_id:
+            user = User.objects.filter(id=user_id).first()
+            if user and request.user.is_staff:
+                try:
+                    group = Group.objects.get(name='default')
+                    group.user_set.remove(user)
+                except:
+                    pass
 
+                try:
+                    group = Group.objects.get(name='mod')
+                    group.user_set.remove(user)
+                except:
+                    pass
 
-# @login_required(login_url="/login")
-# @permission_required("main.add_post", login_url="/login", raise_exception=True)
-# def create_post(request):
-#     if request.method == 'POST':
-#         form = PostForm(request.POST)
-#         if form.is_valid():
-#             post = form.save(commit=False)
-#             post.author = request.user
-#             post.save()
-#             return redirect("/home")
-#     else:
-#         form = PostForm()
-#
-#     return render(request, 'main/create_post.html', {"form": form})
+    return render(request, 'main/home.html', {"excercises": "mhm"})
 
 
 def sign_up(request):
@@ -68,4 +55,21 @@ def sign_up(request):
         form = RegisterForm()
 
     return render(request, 'registration/sign_up.html', {"form": form})
+
+@login_required(login_url="/login")
+def exercise_list(request):
+    if request.method == 'POST':
+        form = ExerciseForm(request.POST)
+        print("uhuhuhuhuhuh")
+        print(form)
+        if form.is_valid():
+            exercise = form.save(commit=False)
+            exercise.user_id = User.objects.get(id=request.user.id)
+            exercise.save()
+            return redirect('exercise_list')
+    else:
+        form = ExerciseForm()
+    # ValueError: Cannot query "toja123": Must be "User" instance. ?
+    exercises = Exercise.objects.filter(user__id=request.user.id)
+    return render(request, 'you_train_api/exercise_list.html', {'exercises': exercises, 'form': form})
 
