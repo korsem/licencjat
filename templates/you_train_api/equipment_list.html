@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Your Training Equipment{% endblock %}
+
+{% block content %}
+<h1>Equipment</h1>
+
+<ul>
+    {% for equipment in equipments %}
+    <li>
+        <a href="{% url 'equipment_exercises' equipment.id %}">
+            {{ equipment.name }}{% if equipment.resistance %} - {{ equipment.resistance }} kg{% endif %}
+        </a>
+        {% if equipment.description %}- {{ equipment.description }}{% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Just got new equipment? Save it!</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Add new equipment</button>
+</form>
+{% endblock %}

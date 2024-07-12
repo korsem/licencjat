@@ -7,27 +7,18 @@ from django.utils.translation import gettext as _
 from you_train_api.choices import MUSCLE_GROUP_CHOICES, EQUIPMENT_CHOICES
 
 
-# class User(models.Model):
-#     username = models.CharField(max_length=100)
-#     email = models.EmailField(unique=True)
-#     password = models.CharField(max_length=100)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-#
-#     def __str__(self):
-#         return self.name
-
 class Equipment(models.Model):
     '''
     ciężar do sprzętu, może po prostu zrobić nazwe choices i dodać do Exercise
     umożliwiłoby to wyszukiwanie treningów i ćwiczeń po sprzęcie i dodawanie sprzętów posiadanych przez użytkownika
     '''
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
     resistance = models.FloatField(blank=True, null=True, help_text=_("Resistance in kg"))
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} {self.resistance} kg" if self.resistance else self.name
 
 class Exercise(models.Model):
     '''

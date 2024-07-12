@@ -1,0 +1,20 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Exercises for {{ equipment.name }}{% endblock %}
+
+{% block content %}
+<h1>Exercises for {{ equipment.name }}</h1>
+
+{% if equipment.resistance %}
+<p>Resistance: {{ equipment.resistance }} kg</p>
+{% endif %}
+{% if equipment.description %}
+<p>Description: {{ equipment.description }}</p>
+{% endif %}
+
+<ul>
+    {% for exercise in exercises %}
+    <li>{{ exercise.name }} - {{ exercise.description }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
