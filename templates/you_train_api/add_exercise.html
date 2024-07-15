@@ -1,0 +1,14 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Add New Exercise{% endblock %}
+
+{% block content %}
+<h1>Add New Exercise</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save Exercise</button>
+</form>
+    <p>Forget to add needed equipment? <a href="{% url 'equipment_list' %}" class="btn btn-secondary">Do it here!</a></p>
+{% endblock %}

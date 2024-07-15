@@ -5,16 +5,62 @@
 {% block content %}
 <h1>Exercises</h1>
 
+<form method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-6">
+            <label for="filter_by">Filter by:</label>
+            <select id="filter_by" class="form-control mb-3" onchange="showFilterOptions(this.value)">
+                <option value="">Select filter type</option>
+                <option value="muscle_group">Muscle Group</option>
+                <option value="other">Other (TODO)</option>
+            </select>
+
+            <div id="muscle_group_filters" style="display: none;">
+                <label>Filter by muscle group:</label>
+                <div>
+                    {% for value, label in MUSCLE_GROUP_CHOICES %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="muscle_group" value="{{ value }}" id="muscle_group_{{ value }}" {% if value in selected_muscle_groups %}checked{% endif %}>
+                            <label class="form-check-label" for="muscle_group_{{ value }}">{{ label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="other_filters" style="display: none;">
+                <p>Other filters (TODO)</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="sort_by">Sort by:</label>
+            <select name="sort_by" id="sort_by" class="form-control">
+                <option value="">Default</option>
+                <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name</option>
+                <option value="muscle_group" {% if sort_by == "muscle_group" %}selected{% endif %}>Muscle Group</option>
+                <option value="equipment" {% if sort_by == "equipment" %}selected{% endif %}>Equipment</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary mt-4">Apply Filters</button>
+        </div>
+    </div>
+</form>
+
 <ul>
     {% for exercise in exercises %}
-    <li>{{ exercise.name }} - {{ exercise.description }}</li>
+    <li>
+        <a href="{% url 'exercise_detail' exercise.id %}">{{ exercise.name }}</a> - {{ exercise.description }} - {{ exercise.muscle_group }} - {{ exercise.equipment }}
+    </li>
     {% endfor %}
 </ul>
 
-<h2>Add New Exercise</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Add Exercise</button>
-</form>
+<a href="{% url 'add_exercise' %}" class="btn btn-secondary mt-4">Add Exercise</a>
+
+<script>
+    function showFilterOptions(value) {
+        document.getElementById('muscle_group_filters').style.display = value === 'muscle_group' ? 'block' : 'none';
+        document.getElementById('other_filters').style.display = value === 'other' ? 'block' : 'none';
+    }
+</script>
+
 {% endblock %}

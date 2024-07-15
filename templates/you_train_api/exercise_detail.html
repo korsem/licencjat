@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Exercise Details{% endblock %}
+
+{% block content %}
+<h1>{{ exercise.name }}</h1>
+<p>{{ exercise.description }}</p>
+{% if exercise.muscle_group %}
+<p>Muscle Group: {{ exercise.get_muscle_group_display }}</p>
+{% endif %}
+{% if exercise.is_cardio %}
+<p>This is a cardio exercise.</p>
+{% endif %}
+{% if exercise.equipment %}
+<p>Equipment: {{ exercise.equipment.name }}</p>
+{% endif %}
+{% if exercise.video_url %}
+<p>Instructional Video: <a href="{{ exercise.video_url }}">Watch here</a></p>
+{% endif %}
+
+    <a href="{% url 'edit_exercise' exercise.id %}" class="btn btn-primary mt-4">Edit Exercise</a>
+<a href="{% url 'delete_exercise' exercise.id %}" class="btn btn-danger mt-4">Delete Exercise</a>
+{% endblock %}

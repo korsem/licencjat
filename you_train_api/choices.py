@@ -5,6 +5,21 @@ MUSCLE_GROUP_CHOICES = [
     ('lower', _('Lower Body')),
     ('core', _('Core')),
     ('full', _('Full Body')),
+    # ('cardio', _('Cardio')), i by sie czy cardio wywalilo, albo na podstawie tego przypisąło
+    ('chest', _('Chest')),
+    ('back', _('Back')),
+    ('shoulders', _('Shoulders')),
+    ('biceps', _('Biceps')),
+    ('triceps', _('Triceps')),
+    ('forearms', _('Forearms')),
+    ('quadriceps', _('Quadriceps')),
+    ('hamstrings', _('Hamstrings')),
+    ('calves', _('Calves')),
+    ('glutes', _('Glutes')),
+    ('adductors', _('Adductors')),
+    ('abductors', _('Abductors')),
+    ('obliques', _('Obliques')),
+    ('transverse_abdominis', _('Transverse Abdominis')),
 ]
 
 EQUIPMENT_CHOICES = [

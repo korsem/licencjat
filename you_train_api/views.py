@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
 from rest_framework import generics
 
+from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm
 from you_train_api.models import Exercise, Equipment
 from you_train_api.serializers import ExerciseSerializer
@@ -58,18 +59,70 @@ def sign_up(request):
 
 @login_required(login_url="/login")
 def exercise_list(request):
-    if request.method == 'POST':
+    exercises = Exercise.objects.filter(user=request.user)
+    muscle_groups = request.GET.getlist('muscle_group')
+    sort_by = request.GET.get('sort_by')
+
+    if muscle_groups:
+        exercises = exercises.filter(muscle_group__in=muscle_groups)
+
+    if sort_by:
+        exercises = exercises.order_by(sort_by)
+
+    return render(request, 'you_train_api/exercise_list.html', {
+        'exercises': exercises,
+        'selected_muscle_groups': muscle_groups,
+        'sort_by': sort_by,
+        'MUSCLE_GROUP_CHOICES': MUSCLE_GROUP_CHOICES,
+    })
+
+@login_required(login_url="/login")
+def add_exercise(request):
+    if request.method == "POST":
         form = ExerciseForm(request.POST)
         if form.is_valid():
             exercise = form.save(commit=False)
             exercise.user = request.user
+            if exercise.is_cardio:
+                exercise.muscle_group = 'cardio'
             exercise.save()
             return redirect('exercise_list')
     else:
         form = ExerciseForm()
-    exercises = Exercise.objects.filter(user=request.user)
-    return render(request, 'you_train_api/exercise_list.html', {'exercises': exercises, 'form': form})
 
+    return render(request, 'you_train_api/add_exercise.html', {'form': form})
+
+
+@login_required(login_url="/login")
+def exercise_detail(request, exercise_id):
+    exercise = get_object_or_404(Exercise, id=exercise_id, user=request.user)
+    return render(request, 'you_train_api/exercise_detail.html', {'exercise': exercise})
+
+
+@login_required(login_url="/login")
+def edit_exercise(request, exercise_id):
+    exercise = get_object_or_404(Exercise, id=exercise_id, user=request.user)
+
+    if request.method == 'POST':
+        form = ExerciseForm(request.POST, instance=exercise)
+        if form.is_valid():
+            form.save()
+            return redirect('exercise_detail', exercise_id=exercise.id)
+    else:
+        form = ExerciseForm(instance=exercise)
+
+    return render(request, 'you_train_api/edit_exercise.html', {'form': form, 'exercise': exercise})
+
+
+@login_required(login_url="/login")
+def delete_exercise(request, exercise_id):
+    exercise = get_object_or_404(Exercise, id=exercise_id, user=request.user)
+
+    if request.method == 'POST':
+        exercise.delete()
+        return redirect('exercise_list')
+
+    return render(request, 'you_train_api/delete_exercise.html', {'exercise': exercise})
 
 @login_required(login_url="/login")
 def equipment_list(request):
