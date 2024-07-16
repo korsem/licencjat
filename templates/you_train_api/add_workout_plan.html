@@ -1,0 +1,44 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Add New Workout Plan{% endblock %}
+
+{% block content %}
+<h1>Add New Workout Plan for {{ training_plan.title }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div>
+        {{ form.start_date.label_tag }} {{ form.start_date }}
+    </div>
+    <div>
+        <label for="id_is_cyclic">Czy powtarza się co tydzień?</label>
+        {{ form.is_cyclic }}
+    </div>
+    <div id="cycle_length_field" style="display: none;">
+        {{ form.cycle_length.label_tag }} {{ form.cycle_length }}
+    </div>
+    <div id="end_date_field" style="display: none;">
+        {{ form.end_date.label_tag }} {{ form.end_date }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save Workout Plan</button>
+</form>
+
+<script>
+    function toggleFields() {
+        var isCyclic = document.getElementById('id_is_cyclic').checked;
+        var cycleLengthField = document.getElementById('cycle_length_field');
+        var endDateField = document.getElementById('end_date_field');
+
+        if (isCyclic) {
+            cycleLengthField.style.display = 'block';
+            endDateField.style.display = 'none';
+        } else {
+            cycleLengthField.style.display = 'none';
+            endDateField.style.display = 'block';
+        }
+    }
+
+    document.getElementById('id_is_cyclic').addEventListener('change', toggleFields);
+    window.onload = toggleFields;  // Ensure the correct fields are displayed on page load
+</script>
+{% endblock %}

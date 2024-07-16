@@ -7,3 +7,6 @@ env.bak/
 venv.bak/
 __pycache__/
 *.log
+node_modules
+package-lock.json
+package.json

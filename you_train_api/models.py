@@ -1,10 +1,12 @@
 import calendar
+from django.utils import timezone
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
-from you_train_api.choices import MUSCLE_GROUP_CHOICES, EQUIPMENT_CHOICES
+from you_train_api.choices import MUSCLE_GROUP_CHOICES
 
 
 class Equipment(models.Model):
@@ -26,7 +28,7 @@ class Exercise(models.Model):
     '''
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
-    muscle_group = models.CharField(max_length=100, blank=True, choices=MUSCLE_GROUP_CHOICES) # dodać choices
+    muscle_group = models.CharField(max_length=100, blank=True, choices=MUSCLE_GROUP_CHOICES)
     equipment = models.ForeignKey(Equipment, on_delete=models.SET_NULL, related_name='exercises', blank=True, null=True)
     is_cardio = models.BooleanField(default=False, help_text="Czy ćwiczenie jest cardio?") # jeśli tak to nie ma reps, tylko duration oraz muscle_group = cardio
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -41,8 +43,7 @@ class TrainingPlan(models.Model):
     '''
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    goal = models.CharField(max_length=100, blank=True)
     is_active = models.BooleanField(default=False) # only one active plan per user
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -62,9 +63,27 @@ class WorkoutPlan(models.Model):
     TrainingPlan nie może istnieć bez workoutplan a WorkoutPlan bez training plan, sa OneToOne
     '''
     training_plan = models.OneToOneField(TrainingPlan, related_name='workout_plan', on_delete=models.CASCADE)
+    start_date = models.DateField(default=timezone.now(), help_text="Data rozpoczęcia planu")
+    end_date = models.DateField(null=True, blank=True, help_text="Data zakończenia planu") #  "do momentu aż wyłącze", ale tyo chyba przy planie cyklicznym
     is_cyclic = models.BooleanField(default=False, help_text="Czy powtarza się co tydzień?") # if true cycle_number is required
-    cycle_length = models.PositiveIntegerField(default=1, help_text="Ile tygodni ma trwać Plan?") # one cycle - one week
+    cycle_length = models.PositiveIntegerField(null=True, blank=True, help_text="Ile tygodni ma trwać Plan?")
 
+    def clean(self):
+        if self.is_cyclic:
+            if self.end_date:
+                raise ValidationError('Cyclic plans should not have an end date.')
+            if not self.cycle_length:
+                raise ValidationError('Cyclic plans must have a cycle length.')
+        else:
+            if not self.end_date:
+                raise ValidationError('Non-cyclic plans must have an end date.')
+            if self.end_date <= self.start_date:
+                raise ValidationError('End date must be after the start date.')
+            self.cycle_length = None  # Ensure cycle_length is null for non-cyclic plans
+
+    def save(self, *args, **kwargs):
+        self.clean()  # Ensure validation is performed
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.training_plan.title} (cyclic: {self.is_cyclic})"
 

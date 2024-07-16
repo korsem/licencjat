@@ -1,0 +1,32 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ training_plan.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ training_plan.title }}</h1>
+
+<p>{{ training_plan.description }}</p>
+
+{% if training_plan.goal %}
+<p><strong>Goal:</strong> {{ training_plan.goal }}</p>
+{% endif %}
+
+<p><strong>Start Date:</strong> {{ workout_plan.start_date }}</p>
+
+{% if workout_plan.is_cyclic %}
+<p><strong>Cycle Length:</strong> {{ workout_plan.cycle_length }} weeks</p>
+{% else %}
+<p><strong>End Date:</strong> {{ workout_plan.end_date }}</p>
+{% endif %}
+
+{% if training_plan.is_active %}
+<p><strong style="color: green;">This is the active training plan</strong></p>
+{% else %}
+<form method="post" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" name="set_active" class="btn btn-primary">Set as Active</button>
+</form>
+{% endif %}
+
+<a href="{% url 'training_plan_list' %}" class="btn btn-secondary mt-4">Back to Training Plans</a>
+{% endblock %}

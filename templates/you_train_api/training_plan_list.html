@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Training Plans{% endblock %}
+
+{% block content %}
+<h1>Training Plans</h1>
+
+<ul>
+    {% for plan in training_plans %}
+    <li style="margin-bottom: 15px;">
+        <h2>{{ plan.title }}</h2>
+        {% if plan.goal %}
+        <p><strong>Goal:</strong> {{ plan.goal }}</p>
+        {% endif %}
+        <p>{{ plan.description }}</p>
+        {% if plan.is_active %}
+        <p><strong style="color: green;">This is the active training plan</strong></p>
+        {% endif %}
+        <a href="{% url 'training_plan_detail' plan.id %}" class="btn btn-primary">View Details</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'add_training_plan' %}" class="btn btn-secondary mt-4">Add Training Plan</a>
+{% endblock %}
