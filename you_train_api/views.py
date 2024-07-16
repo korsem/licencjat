@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User, Group
 from rest_framework import generics
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
-from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm
+from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm, \
+    UserProfileForm, UserSettingsForm
 from you_train_api.models import Exercise, Equipment, TrainingPlan
 from you_train_api.serializers import ExerciseSerializer
 
@@ -56,6 +58,46 @@ def sign_up(request):
         form = RegisterForm()
 
     return render(request, 'registration/sign_up.html', {"form": form})
+
+
+@login_required
+def account(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        profile_form = UserProfileForm(request.POST, instance=user)
+        settings_form = UserSettingsForm(request.POST)
+        password_form = PasswordChangeForm(user, request.POST)
+
+        if 'update_profile' in request.POST:
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect('account', user_id=user_id)
+        elif 'update_settings' in request.POST:
+            if settings_form.is_valid():
+                # Update user settings here (e.g., save to user profile model or session)
+                request.session['language'] = settings_form.cleaned_data['language']
+                request.session['theme'] = settings_form.cleaned_data['theme']
+                return redirect('account', user_id=user_id)
+        elif 'change_password' in request.POST:
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # Important!
+                return redirect('account', user_id=user_id)
+    else:
+        profile_form = UserProfileForm(instance=user)
+        settings_form = UserSettingsForm(initial={
+            'language': request.session.get('language', 'en'),
+            'theme': request.session.get('theme', 'light'),
+        })
+        password_form = PasswordChangeForm(user)
+
+    return render(request, 'you_train_api/account.html', {
+        'profile_form': profile_form,
+        'settings_form': settings_form,
+        'password_form': password_form,
+        'member_since': user.date_joined,
+    })
 
 @login_required(login_url="/login")
 def exercise_list(request):
@@ -205,4 +247,6 @@ def training_plan_detail(request, training_plan_id):
         'training_plan': training_plan,
         'workout_plan': workout_plan,
     })
+
+
 

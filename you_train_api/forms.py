@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan
 
@@ -11,6 +12,27 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["username", "email", "password1", "password2"]
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+        labels = {
+            'username': _('Username'),
+            'email': _('Email'),
+        }
+
+class UserSettingsForm(forms.Form):
+    LANGUAGE_CHOICES = [
+        ('en', 'English'),
+        ('pl', 'Polish'),
+    ]
+    THEME_CHOICES = [
+        ('light', 'Light Mode'),
+        ('dark', 'Dark Mode'),
+    ]
+    language = forms.ChoiceField(choices=LANGUAGE_CHOICES, label=_('Language'))
+    theme = forms.ChoiceField(choices=THEME_CHOICES, label=_('Theme'), required=False)
 
 class ExerciseForm(forms.ModelForm):
     class Meta:
