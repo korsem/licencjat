@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'YouTrain',
     'crispy_forms',
-    'crispy_bootstrap5'
+    'crispy_bootstrap5',
+    'calendar',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

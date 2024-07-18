@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import api_view
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User, Group
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
+import calendar
 from rest_framework import generics
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
@@ -15,38 +17,18 @@ from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, Wor
 from you_train_api.serializers import ExerciseSerializer
 
 
-@api_view(['GET'])
-def home(request):
-    return render(request, 'main/home.html')
-
 @login_required(login_url="/login")
 def home(request):
-    exercises = Exercise.objects.all()
-    print(exercises)
-    if request.method == "POST":
-        exercise_id = request.POST.get("exercise-id")
-        user_id = request.POST.get("user-id")
+    now = timezone.now()
+    current_year = now.year
+    current_month = now.month
 
-        if exercise_id:
-            exercise = Exercise.objects.filter(id=exercise_id).first()
-            if exercise and (exercise.author == request.user or request.user.has_perm("main.delete_exercise")):
-                exercise.delete()
-        elif user_id:
-            user = User.objects.filter(id=user_id).first()
-            if user and request.user.is_staff:
-                try:
-                    group = Group.objects.get(name='default')
-                    group.user_set.remove(user)
-                except:
-                    pass
+    cal = calendar.HTMLCalendar().formatmonth(current_year, current_month)
 
-                try:
-                    group = Group.objects.get(name='mod')
-                    group.user_set.remove(user)
-                except:
-                    pass
+    return render(request, 'main/home.html', {
+        'calendar': cal
+    })
 
-    return render(request, 'main/home.html', {"excercises": "mhm"})
 
 
 def sign_up(request):
