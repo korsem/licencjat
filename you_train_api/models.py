@@ -94,7 +94,7 @@ class Workout(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
     day_of_week = models.IntegerField(choices=[(i, calendar.day_name[i]) for i in range(7)], blank=True, null=True) # if plan not cyclic then null
-    workout_plan = models.ForeignKey(WorkoutPlan, related_name='workouts', on_delete=models.CASCADE) # czy na pewno?
+    workout_plan = models.ForeignKey(WorkoutPlan, related_name='workouts', on_delete=models.CASCADE) # czy na pewno null true?
 
     def __str__(self):
         return self.title

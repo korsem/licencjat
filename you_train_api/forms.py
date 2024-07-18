@@ -3,7 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan
+from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan, Workout, WorkoutSegment, \
+    ExcerciseInSegment
 
 
 class RegisterForm(UserCreationForm):
@@ -36,7 +37,7 @@ class UserSettingsForm(forms.Form):
 
 class ExerciseForm(forms.ModelForm):
     class Meta:
-        model = Exercise
+        model = Exercise # jeslik is_cardio to muscle group plus duration
         fields = ['name', 'description', 'muscle_group', 'equipment', 'is_cardio', 'video_url']
 
 class EquipmentForm(forms.ModelForm):
@@ -82,3 +83,19 @@ class WorkoutPlanForm(forms.ModelForm):
             cleaned_data['cycle_length'] = None  # Ensure cycle_length is null for non-cyclic plans
 
         return cleaned_data
+
+class WorkoutForm(forms.ModelForm):
+    class Meta:
+        model = Workout
+        fields = ['title', 'description'] # TODO dodać 2 brakujące pola
+
+class WorkoutSegmentForm(forms.ModelForm):
+    class Meta:
+        model = WorkoutSegment
+        fields = ['reps', 'rest_time', 'notes']
+
+
+class ExerciseInSegmentForm(forms.ModelForm):
+    class Meta:
+        model = ExcerciseInSegment
+        fields = ['exercise', 'reps', 'duration', 'rest_time', 'notes']

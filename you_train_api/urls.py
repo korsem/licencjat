@@ -1,7 +1,7 @@
 from django.urls import include, path
 from .views import home, sign_up, exercise_list, equipment_list, equipment_exercises, exercise_detail, add_exercise, \
     edit_exercise, delete_exercise, add_training_plan, training_plan_detail, training_plan_list, add_workout_plan, \
-    account
+    account, workout_list, workout_detail, add_workout, exercise_search
 
 exercise_patterns = [
     path('', exercise_list, name='exercise_list'),
@@ -30,4 +30,8 @@ urlpatterns = [
     path('exercises/', include(exercise_patterns)),
     path('equipments/', include(equipment_patterns)),
     path('training_plans/', include(training_plan_patterns)),
+    path('workouts/', workout_list, name='workout_list'),
+    path('workouts/<int:workout_id>/', workout_detail, name='workout_detail'),
+    path('workouts/add/', add_workout, name='add_workout'),
+    path('exercise_search/', exercise_search, name='exercise_search'),
 ]

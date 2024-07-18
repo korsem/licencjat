@@ -1,0 +1,36 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ workout.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ workout.title }}</h1>
+<p>{{ workout.description }}</p>
+<p>Day of Week: {{ workout.get_day_of_week_display }}</p>
+
+<h2>Segments</h2>
+<ul>
+    {% for segment in workout.segments.all %}
+    <li>
+        <h3>Segment {{ segment.id }}</h3>
+        <p>Reps: {{ segment.reps }}</p>
+        <p>Rest Time: {{ segment.rest_time }}</p>
+        <p>Notes: {{ segment.notes }}</p>
+
+        <h4>Exercises</h4>
+        <ul>
+            {% for exercise in segment.exercises.all %}
+            <li>
+                <p>Exercise: {{ exercise.name }}</p>
+                <p>Reps: {{ exercise.exerciseinsegment.reps }}</p>
+                <p>Duration: {{ exercise.exerciseinsegment.duration }}</p>
+                <p>Rest Time: {{ exercise.exerciseinsegment.rest_time }}</p>
+                <p>Notes: {{ exercise.exerciseinsegment.notes }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% empty %}
+    <li>No segments found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -23,6 +23,9 @@
               <li class="nav-item">
               <a class="nav-link" href="{% url 'training_plan_list' %}">Your plans</a>
             </li>
+             <li class="nav-item">
+              <a class="nav-link" href="{% url 'workout_list' %}">Workouts</a>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'exercise_list' %}">Excercises</a>
             </li>
@@ -36,7 +39,7 @@
             {% if user.is_authenticated %}
             <span class="navbar-text">Logged in as {{user.username}} |  </span>
               <li class="nav-item">
-              <a class="nav-link" href="{% url 'account' user_id=user.id %}">Your account</a>
+              <a class="nav-link" href="{% url 'account' user_id=user.id %}">Your account  |  </a>
             </li>
             <li class="nav-item">
                <form method="post" action="{% url 'logout' %}" style="display: inline;">

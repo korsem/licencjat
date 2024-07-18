@@ -4,12 +4,14 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User, Group
+from django.forms import inlineformset_factory
+from django.http import JsonResponse
 from rest_framework import generics
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm, \
-    UserProfileForm, UserSettingsForm
-from you_train_api.models import Exercise, Equipment, TrainingPlan
+    UserProfileForm, UserSettingsForm, WorkoutForm, ExerciseInSegmentForm, WorkoutSegmentForm
+from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExcerciseInSegment
 from you_train_api.serializers import ExerciseSerializer
 
 
@@ -104,9 +106,13 @@ def exercise_list(request):
     exercises = Exercise.objects.filter(user=request.user)
     muscle_groups = request.GET.getlist('muscle_group')
     sort_by = request.GET.get('sort_by')
+    search_query = request.GET.get('search', '')
 
     if muscle_groups:
         exercises = exercises.filter(muscle_group__in=muscle_groups)
+
+    if search_query:
+        exercises = exercises.filter(name__icontains=search_query)
 
     if sort_by:
         exercises = exercises.order_by(sort_by)
@@ -115,6 +121,7 @@ def exercise_list(request):
         'exercises': exercises,
         'selected_muscle_groups': muscle_groups,
         'sort_by': sort_by,
+        'search_query': search_query,
         'MUSCLE_GROUP_CHOICES': MUSCLE_GROUP_CHOICES,
     })
 
@@ -248,5 +255,53 @@ def training_plan_detail(request, training_plan_id):
         'workout_plan': workout_plan,
     })
 
+def workout_list(request):
+    workouts = Workout.objects.all() # czy po userze?
+    return render(request, 'you_train_api/workout_list.html', {'workouts': workouts})
+
+def workout_detail(request, workout_id):
+    workout = get_object_or_404(Workout, id=workout_id)
+    return render(request, 'you_train_api/workout_detail.html', {'workout': workout})
 
 
+@login_required(login_url="/login")
+def add_workout(request):
+    WorkoutSegmentFormSet = inlineformset_factory(Workout, WorkoutSegment, form=WorkoutSegmentForm, extra=1,
+                                                  can_delete=True)
+    ExerciseInSegmentFormSet = inlineformset_factory(WorkoutSegment, ExcerciseInSegment, form=ExerciseInSegmentForm,
+                                                     extra=1, can_delete=True)
+
+    if request.method == 'POST':
+        workout_form = WorkoutForm(request.POST)
+        segment_formset = WorkoutSegmentFormSet(request.POST, prefix='segments')
+
+        if workout_form.is_valid() and segment_formset.is_valid():
+            workout = workout_form.save()
+            segments = segment_formset.save(commit=False)
+            for segment in segments:
+                segment.workout = workout
+                segment.save()
+
+                exercise_formset = ExerciseInSegmentFormSet(request.POST, instance=segment,
+                                                            prefix=f'segment_{segment.pk}_exercises')
+
+                if exercise_formset.is_valid():
+                    exercise_formset.save()
+
+            return redirect('workout_list')
+    else:
+        workout_form = WorkoutForm()
+        segment_formset = WorkoutSegmentFormSet(prefix='segments')
+
+    return render(request, 'you_train_api/add_workout.html', {
+        'workout_form': workout_form,
+        'segment_formset': segment_formset,
+    })
+
+
+@login_required(login_url="/login")
+def exercise_search(request):
+    query = request.GET.get('query', '')
+    exercises = Exercise.objects.filter(user=request.user, name__icontains=query)
+    exercise_list = [{'id': exercise.id, 'name': exercise.name} for exercise in exercises]
+    return JsonResponse(exercise_list, safe=False)
