@@ -7,12 +7,13 @@
 
 <form method="get" class="mb-3">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label for="filter_by">Filter by:</label>
             <select id="filter_by" class="form-control mb-3" onchange="showFilterOptions(this.value)">
                 <option value="">Select filter type</option>
                 <option value="muscle_group">Muscle Group</option>
-                <option value="other">Other (TODO)</option>
+                <option value="cardio">Cardio</option>
+                <option value="equipment">Equipment</option>
             </select>
 
             <div id="muscle_group_filters" style="display: none;">
@@ -27,11 +28,31 @@
                 </div>
             </div>
 
-            <div id="other_filters" style="display: none;">
-                <p>Other filters (TODO)</p>
+            <div id="cardio_filters" style="display: none;">
+                <label>Filter by cardio:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="is_cardio" id="is_cardio" {% if is_cardio %}checked{% endif %}>
+                    <label class="form-check-label" for="is_cardio">Cardio Exercises</label>
+                </div>
+            </div>
+
+            <div id="equipment_filters" style="display: none;">
+                <label>Filter by equipment:</label>
+                <div>
+                    {% for equipment in equipment_list %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="equipment" value="{{ equipment.name }}" id="equipment_{{ equipment.id }}" {% if equipment.name in selected_equipment %}checked{% endif %}>
+                            <label class="form-check-label" for="equipment_{{ equipment.id }}">{{ equipment.name }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
+            <label for="search">Search:</label>
+            <input type="text" name="search" id="search" class="form-control" value="{{ search_query }}">
+        </div>
+        <div class="col-md-4">
             <label for="sort_by">Sort by:</label>
             <select name="sort_by" id="sort_by" class="form-control">
                 <option value="">Default</option>
@@ -39,8 +60,6 @@
                 <option value="muscle_group" {% if sort_by == "muscle_group" %}selected{% endif %}>Muscle Group</option>
                 <option value="equipment" {% if sort_by == "equipment" %}selected{% endif %}>Equipment</option>
             </select>
-        </div>
-        <div class="col-md-3">
             <button type="submit" class="btn btn-primary mt-4">Apply Filters</button>
         </div>
     </div>
@@ -59,7 +78,8 @@
 <script>
     function showFilterOptions(value) {
         document.getElementById('muscle_group_filters').style.display = value === 'muscle_group' ? 'block' : 'none';
-        document.getElementById('other_filters').style.display = value === 'other' ? 'block' : 'none';
+        document.getElementById('cardio_filters').style.display = value === 'cardio' ? 'block' : 'none';
+        document.getElementById('equipment_filters').style.display = value === 'equipment' ? 'block' : 'none';
     }
 </script>
 

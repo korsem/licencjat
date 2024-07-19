@@ -58,6 +58,43 @@ document.getElementById('add-segment').addEventListener('click', function() {
 
     newForm.innerHTML = newForm.innerHTML.replace(/__prefix__/g, formIdx);
     segmentFormset.appendChild(newForm);
+
+    var deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'delete-segment';
+    deleteButton.textContent = 'Delete Segment';
+    deleteButton.dataset.segment = formIdx;
+    newForm.appendChild(deleteButton);
+
+    deleteButton.addEventListener('click', function() {
+        newForm.remove();
+    });
+
+    // Attach event listener for Add Exercise button in the new segment
+    newForm.querySelector('.add-exercise').addEventListener('click', function() {
+        var segmentIndex = this.getAttribute('data-segment');
+        var modal = document.getElementById('exercise-modal');
+        modal.style.display = "block";
+
+        document.getElementById('search-button').onclick = function() {
+            var query = document.getElementById('search-query').value;
+            fetch(`/exercise_search/?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    var exerciseList = document.getElementById('exercise-list');
+                    exerciseList.innerHTML = '';
+                    data.forEach(exercise => {
+                        var exerciseItem = document.createElement('div');
+                        exerciseItem.textContent = exercise.name;
+                        exerciseItem.onclick = function() {
+                            // Add exercise to the formset here
+                            modal.style.display = "none";
+                        };
+                        exerciseList.appendChild(exerciseItem);
+                    });
+                });
+        };
+    });
 });
 
 document.querySelectorAll('.add-exercise').forEach(button => {

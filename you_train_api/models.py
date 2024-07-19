@@ -91,6 +91,7 @@ class Workout(models.Model):
     '''
     Karta treningowa, z ćwiczeniami, do danego dnia, do danego planu treningowego, jako dict
     '''
+
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
     day_of_week = models.IntegerField(choices=[(i, calendar.day_name[i]) for i in range(7)], blank=True, null=True) # if plan not cyclic then null

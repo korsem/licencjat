@@ -89,6 +89,8 @@ def exercise_list(request):
     muscle_groups = request.GET.getlist('muscle_group')
     sort_by = request.GET.get('sort_by')
     search_query = request.GET.get('search', '')
+    is_cardio = request.GET.get('is_cardio', 'off') == 'on'
+    selected_equipment = request.GET.getlist('equipment')
 
     if muscle_groups:
         exercises = exercises.filter(muscle_group__in=muscle_groups)
@@ -96,14 +98,25 @@ def exercise_list(request):
     if search_query:
         exercises = exercises.filter(name__icontains=search_query)
 
+    if is_cardio:
+        exercises = exercises.filter(is_cardio=True)
+
+    if selected_equipment:
+        exercises = exercises.filter(equipment__name__in=selected_equipment)
+
     if sort_by:
         exercises = exercises.order_by(sort_by)
+
+    equipment_list = Equipment.objects.all()
 
     return render(request, 'you_train_api/exercise_list.html', {
         'exercises': exercises,
         'selected_muscle_groups': muscle_groups,
         'sort_by': sort_by,
         'search_query': search_query,
+        'is_cardio': is_cardio,
+        'selected_equipment': selected_equipment,
+        'equipment_list': equipment_list,
         'MUSCLE_GROUP_CHOICES': MUSCLE_GROUP_CHOICES,
     })
 
@@ -245,13 +258,10 @@ def workout_detail(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
     return render(request, 'you_train_api/workout_detail.html', {'workout': workout})
 
-
 @login_required(login_url="/login")
 def add_workout(request):
-    WorkoutSegmentFormSet = inlineformset_factory(Workout, WorkoutSegment, form=WorkoutSegmentForm, extra=1,
-                                                  can_delete=True)
-    ExerciseInSegmentFormSet = inlineformset_factory(WorkoutSegment, ExcerciseInSegment, form=ExerciseInSegmentForm,
-                                                     extra=1, can_delete=True)
+    WorkoutSegmentFormSet = inlineformset_factory(Workout, WorkoutSegment, form=WorkoutSegmentForm, extra=1, can_delete=True)
+    ExerciseInSegmentFormSet = inlineformset_factory(WorkoutSegment, ExcerciseInSegment, form=ExerciseInSegmentForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         workout_form = WorkoutForm(request.POST)
@@ -264,8 +274,7 @@ def add_workout(request):
                 segment.workout = workout
                 segment.save()
 
-                exercise_formset = ExerciseInSegmentFormSet(request.POST, instance=segment,
-                                                            prefix=f'segment_{segment.pk}_exercises')
+                exercise_formset = ExerciseInSegmentFormSet(request.POST, instance=segment, prefix=f'segment_{segment.pk}_exercises')
 
                 if exercise_formset.is_valid():
                     exercise_formset.save()
@@ -279,7 +288,6 @@ def add_workout(request):
         'workout_form': workout_form,
         'segment_formset': segment_formset,
     })
-
 
 @login_required(login_url="/login")
 def exercise_search(request):
