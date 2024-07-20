@@ -88,6 +88,14 @@ document.getElementById('add-segment').addEventListener('click', function() {
                         exerciseItem.textContent = exercise.name;
                         exerciseItem.onclick = function() {
                             // Add exercise to the formset here
+                            var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
+                            var exerciseFormset = segmentForm.querySelector('.exercise-formset');
+                            var newExerciseForm = exerciseFormset.lastElementChild.cloneNode(true);
+                            var exerciseFormIdx = exerciseFormset.children.length;
+
+                            newExerciseForm.innerHTML = newExerciseForm.innerHTML.replace(/__prefix__/g, exerciseFormIdx);
+                            newExerciseForm.querySelector('input').value = exercise.id;  // Set the exercise ID
+                            exerciseFormset.appendChild(newExerciseForm);
                             modal.style.display = "none";
                         };
                         exerciseList.appendChild(exerciseItem);
@@ -115,6 +123,14 @@ document.querySelectorAll('.add-exercise').forEach(button => {
                         exerciseItem.textContent = exercise.name;
                         exerciseItem.onclick = function() {
                             // Add exercise to the formset here
+                            var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
+                            var exerciseFormset = segmentForm.querySelector('.exercise-formset');
+                            var newExerciseForm = exerciseFormset.lastElementChild.cloneNode(true);
+                            var exerciseFormIdx = exerciseFormset.children.length;
+
+                            newExerciseForm.innerHTML = newExerciseForm.innerHTML.replace(/__prefix__/g, exerciseFormIdx);
+                            newExerciseForm.querySelector('input').value = exercise.id;  // Set the exercise ID
+                            exerciseFormset.appendChild(newExerciseForm);
                             modal.style.display = "none";
                         };
                         exerciseList.appendChild(exerciseItem);

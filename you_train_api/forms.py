@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan, Workout, WorkoutSegment, \
-    ExcerciseInSegment
+    ExerciseInSegment
 
 
 class RegisterForm(UserCreationForm):
@@ -97,5 +97,5 @@ class WorkoutSegmentForm(forms.ModelForm):
 
 class ExerciseInSegmentForm(forms.ModelForm):
     class Meta:
-        model = ExcerciseInSegment
+        model = ExerciseInSegment
         fields = ['exercise', 'reps', 'duration', 'rest_time', 'notes']

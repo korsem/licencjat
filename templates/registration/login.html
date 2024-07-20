@@ -2,10 +2,56 @@
 
 {% block title %}Login{% endblock %}
 
-{% load crispy_forms_tags %} {% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<style>
+.bigger-logo {
+    max-width: 400px;
+}
+
+.login-header {
+    margin-bottom: 2rem;
+}
+
+.login-header .logo {
+    margin-bottom: 1rem;
+    max-width: 150px;
+}
+
+.login-header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.login-header .lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+form p {
+    margin-top: 1rem;
+    text-align: center;
+}
+</style>
+
+<div class="login-header text-center mb-4">
+    <img src="{% static 'images/logo.png' %}" alt="YouTrain Logo" class="bigger-logo">
+    <h1 class="display-4">Welcome Back to YouTrain!</h1>
+    <p class="lead">Plan. Train. Progress.</p>
+    <p>Log in to continue your fitness journey and track your progress.</p>
+</div>
+
 <form method="post">
-  {% csrf_token %}{{form|crispy}}
-  <p>Don't have an account? Create one <a href="/sign-up">Here</a>!</p>
-  <button type="submit" class="btn btn-success">Login</button>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <p>Don't have an account? Create one <a href="/sign-up">Here</a>!</p>
+    <button type="submit" class="btn btn-success">Login</button>
 </form>
 {% endblock %}

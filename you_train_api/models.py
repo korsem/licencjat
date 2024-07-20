@@ -87,15 +87,26 @@ class WorkoutPlan(models.Model):
     def __str__(self):
         return f"{self.training_plan.title} (cyclic: {self.is_cyclic})"
 
+
+class WorkoutInPlan(models.Model):
+    '''
+    Karta treningowa w planie treningowym, z ćwiczeniami, do danego dnia, do danego planu treningowego
+    '''
+    workout = models.ForeignKey('Workout', on_delete=models.CASCADE)
+    workout_plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE)
+    day_of_week = models.IntegerField(choices=[(i, calendar.day_name[i]) for i in range(7)], blank=True, null=True) # if plan not cyclic then null
+
+    def __str__(self):
+        return f"{self.workout_plan} - {calendar.day_name[self.day - 1]}"
+
 class Workout(models.Model):
     '''
     Karta treningowa, z ćwiczeniami, do danego dnia, do danego planu treningowego, jako dict
     '''
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=300, blank=True)
-    day_of_week = models.IntegerField(choices=[(i, calendar.day_name[i]) for i in range(7)], blank=True, null=True) # if plan not cyclic then null
-    workout_plan = models.ForeignKey(WorkoutPlan, related_name='workouts', on_delete=models.CASCADE) # czy na pewno null true?
+    workout_plan = models.ManyToManyField(WorkoutPlan, through='WorkoutInPlan')
 
     def __str__(self):
         return self.title
@@ -125,12 +136,12 @@ class WorkoutSegment(models.Model):
     reps = models.IntegerField("Ile razy blok ma być powtórzony")
     rest_time = models.DurationField(help_text="Czas odpoczynku między seriami")
     notes = models.CharField(max_length=300, blank=True)
-    excercises = models.ManyToManyField(Exercise, through='ExcerciseInSegment')
+    exercises = models.ManyToManyField(Exercise, through='ExerciseInSegment')
 
     def __str__(self):
         return f"{self.workout.title} - segment {self.id}"
 
-class ExcerciseInSegment(models.Model):
+class ExerciseInSegment(models.Model):
     '''
     ćwiczenie w bloku treningowym, z opisem jak ma być wykonane
     '''

@@ -13,7 +13,7 @@ from rest_framework import generics
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm, \
     UserProfileForm, UserSettingsForm, WorkoutForm, ExerciseInSegmentForm, WorkoutSegmentForm
-from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExcerciseInSegment
+from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExerciseInSegment
 from you_train_api.serializers import ExerciseSerializer
 
 
@@ -251,7 +251,7 @@ def training_plan_detail(request, training_plan_id):
     })
 
 def workout_list(request):
-    workouts = Workout.objects.all() # czy po userze?
+    workouts = Workout.objects.filter(user=request.user)
     return render(request, 'you_train_api/workout_list.html', {'workouts': workouts})
 
 def workout_detail(request, workout_id):
@@ -261,7 +261,7 @@ def workout_detail(request, workout_id):
 @login_required(login_url="/login")
 def add_workout(request):
     WorkoutSegmentFormSet = inlineformset_factory(Workout, WorkoutSegment, form=WorkoutSegmentForm, extra=1, can_delete=True)
-    ExerciseInSegmentFormSet = inlineformset_factory(WorkoutSegment, ExcerciseInSegment, form=ExerciseInSegmentForm, extra=1, can_delete=True)
+    ExerciseInSegmentFormSet = inlineformset_factory(WorkoutSegment, ExerciseInSegment, form=ExerciseInSegmentForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         workout_form = WorkoutForm(request.POST)
