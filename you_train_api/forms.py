@@ -87,15 +87,40 @@ class WorkoutPlanForm(forms.ModelForm):
 class WorkoutForm(forms.ModelForm):
     class Meta:
         model = Workout
-        fields = ['title', 'description'] # TODO dodać 2 brakujące pola
+        fields = ['title', 'description']
 
 class WorkoutSegmentForm(forms.ModelForm):
     class Meta:
         model = WorkoutSegment
         fields = ['reps', 'rest_time', 'notes']
+        widgets = {
+            'rest_time': forms.TimeInput(format='%H:%M:%S', attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        reps = cleaned_data.get("reps")
+        rest_time = cleaned_data.get("rest_time")
+
+        if reps is None or rest_time is None:
+            raise forms.ValidationError("Both reps and rest time are required.")
+
 
 
 class ExerciseInSegmentForm(forms.ModelForm):
     class Meta:
         model = ExerciseInSegment
         fields = ['exercise', 'reps', 'duration', 'rest_time', 'notes']
+        widgets = {
+            'duration': forms.TimeInput(format='%H:%M:%S', attrs={'class': 'form-control'}),
+            'rest_time': forms.TimeInput(format='%M:%S', attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        reps = cleaned_data.get("reps")
+        duration = cleaned_data.get("duration")
+
+        if not reps and not duration:
+            raise forms.ValidationError("Either reps or duration must be specified.")
+

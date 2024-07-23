@@ -289,6 +289,7 @@ def add_workout(request):
         'segment_formset': segment_formset,
     })
 
+
 @login_required(login_url="/login")
 def exercise_search(request):
     query = request.GET.get('query', '')
