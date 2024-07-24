@@ -55,28 +55,38 @@
                 <div class="modal-content">
                     <span class="close-details">&times;</span>
                     <h2 id="exercise-details-title">Exercise Details</h2>
-                    <form id="exercise-details-form">
-                        <input type="hidden" id="selected-exercise-id">
-                        <div class="form-group">
-                            <label for="reps">Reps:</label>
-                            <input type="number" id="reps" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="duration">Duration (seconds):</label>
-                            <input type="number" id="duration" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="rest_time">Rest Time (seconds):</label>
-                            <input type="number" id="rest_time" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="notes">Notes:</label>
-                            <textarea id="notes" class="form-control"></textarea>
-                        </div>
-                        <button type="button" id="back-to-exercises" class="btn btn-secondary">Back</button>
-                        <button type="button" id="save-exercise-details" class="btn btn-success">Save</button>
-                        <button type="button" id="save-add-next-exercise-details" class="btn btn-primary">Save and Add Next</button>
-                    </form>
+           <form id="exercise-details-form">
+            <input type="hidden" id="selected-exercise-id">
+            <div class="form-group">
+                <label for="reps">Reps:</label>
+                <input type="number" id="reps" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="duration">Duration (h:m:s):</label>
+                <div class="form-inline">
+                    <input type="number" id="duration_0" class="form-control" placeholder="h" min="0">
+                    <span>:</span>
+                    <input type="number" id="duration_1" class="form-control" placeholder="m" min="0" max="59">
+                    <span>:</span>
+                    <input type="number" id="duration_2" class="form-control" placeholder="s" min="0" max="59">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rest_time">Rest Time (m:s):</label>
+                <div class="form-inline">
+                    <input type="number" id="rest_time_0" class="form-control" placeholder="m" min="0">
+                    <span>:</span>
+                    <input type="number" id="rest_time_1" class="form-control" placeholder="s" min="0" max="59">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" class="form-control"></textarea>
+            </div>
+            <button type="button" id="back-to-exercises" class="btn btn-secondary">Back</button>
+            <button type="button" id="save-exercise-details" class="btn btn-success">Save</button>
+            <button type="button" id="save-add-next-exercise-details" class="btn btn-primary">Save and Add Next</button>
+        </form>
                 </div>
             </div>
         </div>
@@ -123,6 +133,15 @@
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+}
+
+.form-inline input {
+    margin-right: 5px;
 }
 </style>
 
@@ -212,12 +231,17 @@ document.getElementById('save-add-next-exercise-details').addEventListener('clic
     saveExerciseDetails(true);
 });
 
+
 function saveExerciseDetails(addNext) {
     var reps = document.getElementById('reps').value;
-    var duration = document.getElementById('duration').value;
+    var duration_h = document.getElementById('duration_0').value;
+    var duration_m = document.getElementById('duration_1').value;
+    var duration_s = document.getElementById('duration_2').value;
+    var rest_time_m = document.getElementById('rest_time_0').value;
+    var rest_time_s = document.getElementById('rest_time_1').value;
 
     // Validate that either reps or duration is filled
-    if (!reps && !duration) {
+    if (!reps && (!duration_h && !duration_m && !duration_s)) {
         alert('Either reps or duration must be specified.');
         return;
     }
@@ -232,8 +256,8 @@ function saveExerciseDetails(addNext) {
     newExerciseForm.innerHTML = newExerciseForm.innerHTML.replace(/__prefix__/g, exerciseFormIdx);
     newExerciseForm.querySelector('input[name*="exercise"]').value = document.getElementById('selected-exercise-id').value;
     newExerciseForm.querySelector('input[name*="reps"]').value = reps;
-    newExerciseForm.querySelector('input[name*="duration"]').value = duration;
-    newExerciseForm.querySelector('input[name*="rest_time"]').value = document.getElementById('rest_time').value;
+    newExerciseForm.querySelector('input[name*="duration"]').value = `${duration_h}:${duration_m}:${duration_s}`;
+    newExerciseForm.querySelector('input[name*="rest_time"]').value = `${rest_time_m}:${rest_time_s}`;
     newExerciseForm.querySelector('textarea[name*="notes"]').value = document.getElementById('notes').value;
 
     exerciseFormset.appendChild(newExerciseForm);
@@ -243,6 +267,16 @@ function saveExerciseDetails(addNext) {
     }
 
     resetExerciseDetailsForm();
+}
+
+function resetExerciseDetailsForm() {
+    document.getElementById('reps').value = '';
+    document.getElementById('duration_0').value = '';
+    document.getElementById('duration_1').value = '';
+    document.getElementById('duration_2').value = '';
+    document.getElementById('rest_time_0').value = '';
+    document.getElementById('rest_time_1').value = '';
+    document.getElementById('notes').value = '';
 }
 
 document.getElementById('back-to-exercises').addEventListener('click', function() {

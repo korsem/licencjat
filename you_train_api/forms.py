@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan, Workout, WorkoutSegment, \
     ExerciseInSegment
+from you_train_api.widgets import HMSTimeField, MSTimeField
 
 
 class RegisterForm(UserCreationForm):
@@ -90,12 +91,10 @@ class WorkoutForm(forms.ModelForm):
         fields = ['title', 'description']
 
 class WorkoutSegmentForm(forms.ModelForm):
+    rest_time = MSTimeField(label='Rest Time', required=True)
     class Meta:
         model = WorkoutSegment
         fields = ['reps', 'rest_time', 'notes']
-        widgets = {
-            'rest_time': forms.TimeInput(format='%H:%M:%S', attrs={'class': 'form-control'}),
-        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -108,13 +107,13 @@ class WorkoutSegmentForm(forms.ModelForm):
 
 
 class ExerciseInSegmentForm(forms.ModelForm):
+
+    duration = HMSTimeField(label='Duration', required=False)
+    rest_time = MSTimeField(label='Rest Time', required=True)
+
     class Meta:
         model = ExerciseInSegment
         fields = ['exercise', 'reps', 'duration', 'rest_time', 'notes']
-        widgets = {
-            'duration': forms.TimeInput(format='%H:%M:%S', attrs={'class': 'form-control'}),
-            'rest_time': forms.TimeInput(format='%M:%S', attrs={'class': 'form-control'}),
-        }
 
     def clean(self):
         cleaned_data = super().clean()
