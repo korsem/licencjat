@@ -92,6 +92,7 @@ class WorkoutForm(forms.ModelForm):
 
 class WorkoutSegmentForm(forms.ModelForm):
     rest_time = MSTimeField(label='Rest Time', required=True)
+    reps = forms.IntegerField(label='Ile razy blok ma być powtórzony', required=True, min_value=1, initial=1)
     class Meta:
         model = WorkoutSegment
         fields = ['reps', 'rest_time', 'notes']
