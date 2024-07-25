@@ -1,10 +1,83 @@
 {% extends 'main/base.html' %}
-
+{% load i18n %}
 {% block title %}Home Page{% endblock %}
 
 {% block content %}
-<h1>Witaj, {{user.username}}!</h1>
-<div class="calendar">
-    {{ calendar|safe }}
+<h1>Witaj, {{ user.username }}!</h1>
+<h2>Treningi na miesiąc {{ month }} {{ year }}</h2>
+<hr class="divider">
+<div class="calendar-container">
+    <a href="?year={{ prev_year }}&month={{ prev_month }}" class="nav-button prev-month">&#9664;</a>
+    <div class="calendar">
+        {{ calendar|safe }}
+    </div>
+    <a href="?year={{ next_year }}&month={{ next_month }}" class="nav-button next-month">&#9654;</a>
 </div>
+<style>
+    .header-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 10px;
+    }
+    .current-month-year {
+        margin: 0;
+        font-size: 1.5em;
+        margin-left: 20px;
+    }
+    .divider {
+        margin: 20px 0;
+        border: none;
+        border-top: 2px solid #ddd;
+    }
+    .calendar-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .calendar {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .calendar th, .calendar td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+    .calendar th {
+        background-color: #f2f2f2;
+    }
+    .calendar td {
+        height: 100px;
+        vertical-align: top;
+    }
+    .calendar td:empty {
+        background-color: #f9f9f9;
+    }
+    .calendar .trening {
+        color: red;
+        font-weight: bold;
+    }
+    .calendar .weekend {
+        background-color: #f0f8ff; /* Light blue for weekends */
+    }
+    .nav-button {
+        position: absolute;
+        font-size: 2em;
+        color: black;
+        text-decoration: none;
+        font-weight: bold;
+        z-index: 10;
+    }
+    .prev-month {
+        left: -50px;
+    }
+    .next-month {
+        right: -50px;
+    }
+    .nav-button:hover {
+        color: #007bff;
+    }
+</style>
 {% endblock %}

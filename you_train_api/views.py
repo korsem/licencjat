@@ -13,7 +13,8 @@ from rest_framework import generics
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm, \
     UserProfileForm, UserSettingsForm, WorkoutForm, ExerciseInSegmentForm, WorkoutSegmentForm
-from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExerciseInSegment
+from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExerciseInSegment, \
+    WorkoutSession
 from you_train_api.serializers import ExerciseSerializer
 
 
@@ -23,11 +24,75 @@ def home(request):
     current_year = now.year
     current_month = now.month
 
-    cal = calendar.HTMLCalendar().formatmonth(current_year, current_month)
+    # Get the month and year from query parameters, defaulting to current month and year
+    year = request.GET.get('year', current_year)
+    month = request.GET.get('month', current_month)
 
-    return render(request, 'main/home.html', {
-        'calendar': cal
-    })
+    try:
+        year = int(year)
+        month = int(month)
+    except ValueError:
+        year = current_year
+        month = current_month
+
+    # Fetch workout sessions for the selected month
+    sessions = WorkoutSession.objects.filter(date__year=year, date__month=month)
+
+    # Create a calendar instance and format the month
+    cal = calendar.Calendar(firstweekday=6)  # Week starts on Sunday (default)
+    month_days = cal.monthdayscalendar(year, month)
+
+    # Build a dictionary of workout sessions by day
+    workout_days = {session.date.day for session in sessions}
+
+    # Generate HTML for the calendar
+    html_calendar = '<table class="calendar"><thead><tr>'
+    for day_name in calendar.day_name:
+        html_calendar += f'<th>{day_name[:2]}</th>'
+    html_calendar += '</tr></thead><tbody>'
+
+    for week in month_days:
+        html_calendar += '<tr>'
+        for i, day in enumerate(week):
+            day_class = ''
+            if i == 6:  # Sunday
+                day_class = 'weekend'
+            elif i == 5:  # Saturday
+                day_class = 'weekend'
+
+            if day == 0:
+                html_calendar += '<td></td>'
+            else:
+                label = 'trening' if day in workout_days else ''
+                html_calendar += f'<td class="{day_class}">{day}<br>{label}</td>'
+        html_calendar += '</tr>'
+
+    html_calendar += '</tbody></table>'
+
+    # Determine previous and next month
+    prev_month = month - 1
+    prev_year = year
+    if prev_month < 1:
+        prev_month = 12
+        prev_year -= 1
+
+    next_month = month + 1
+    next_year = year
+    if next_month > 12:
+        next_month = 1
+        next_year += 1
+
+    context = {
+        'calendar': html_calendar,
+        'month': calendar.month_name[month],
+        'year': year,
+        'prev_month': prev_month,
+        'prev_year': prev_year,
+        'next_month': next_month,
+        'next_year': next_year,
+    }
+
+    return render(request, 'main/home.html', context)
 
 
 
