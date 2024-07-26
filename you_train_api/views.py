@@ -323,6 +323,7 @@ def workout_detail(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
     return render(request, 'you_train_api/workout_detail.html', {'workout': workout})
 
+
 @login_required(login_url="/login")
 def add_workout(request):
     WorkoutSegmentFormSet = inlineformset_factory(Workout, WorkoutSegment, form=WorkoutSegmentForm, extra=1, can_delete=True)
@@ -340,7 +341,6 @@ def add_workout(request):
                 segment.save()
 
                 exercise_formset = ExerciseInSegmentFormSet(request.POST, instance=segment, prefix=f'segment_{segment.pk}_exercises')
-
                 if exercise_formset.is_valid():
                     exercise_formset.save()
 
@@ -349,9 +349,17 @@ def add_workout(request):
         workout_form = WorkoutForm()
         segment_formset = WorkoutSegmentFormSet(prefix='segments')
 
+        # Prepare exercise formsets for each segment in the formset
+        exercise_formsets = []
+        for i, form in enumerate(segment_formset):
+            exercise_formset = ExerciseInSegmentFormSet(prefix=f'segment_{i}_exercises')
+            exercise_formsets.append(exercise_formset)
+            print("i", form)
+
     return render(request, 'you_train_api/add_workout.html', {
         'workout_form': workout_form,
         'segment_formset': segment_formset,
+        'exercise_formsets': exercise_formsets,
     })
 
 

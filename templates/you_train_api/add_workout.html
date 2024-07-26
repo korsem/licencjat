@@ -1,8 +1,14 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Add New Workout{% endblock %}
 
 {% block content %}
+
+{% block extra_stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style/add_workout.css' %}">
+{% endblock %}
+
 <h1>Add New Workout</h1>
 
 <form method="post">
@@ -34,12 +40,35 @@
                     </div>
                     <h3>Exercises</h3>
                     <div class="exercise-formset">
-                        {{ form.instance.exercise_formset.management_form }}
-                        {% for exercise_form in form.instance.exercise_formset %}
-                        <div class="exercise-form mb-2">
-                            {{ exercise_form.as_p }}
-                        </div>
-                        {% endfor %}
+                        {% if exercise_formsets %}
+                            {% for exercise_formset in exercise_formsets %}
+                                {% if exercise_formset.prefix == "segment_"|add:forloop.counter0|add:"_exercises" %}
+                                    {{ exercise_formset.management_form }}
+                                    <table class="table table-bordered exercise-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Reps</th>
+                                                <th>Duration (h:m:s)</th>
+                                                <th>Rest Time (m:s)</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for exercise_form in exercise_formset %}
+                                            <tr>
+                                               <td>{{ exercise_form.instance.exercise.name }}</td>
+                                                <td>{{ exercise_form.instance.reps }}</td>
+                                                <td>{{ exercise_form.instance.duration }}</td>
+                                                <td>{{ exercise_form.instance.rest_time }}</td>
+                                                <td>{{ exercise_form.instance.notes }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                         <ul class="exercise-list">
                             <!-- Exercise list items will be added here -->
                         </ul>
@@ -113,55 +142,6 @@
     <button type="submit" class="btn btn-success mt-4">Save Workout</button>
 </form>
 
-<style>
-.exercise-list {
-    max-height: 400px;
-    overflow-y: scroll;
-    border: 1px solid #ddd;
-    padding: 10px;
-}
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
-    padding-top: 60px;
-}
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-}
-.close, .close-details {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-.close:hover, .close:focus, .close-details:hover, .close-details:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.form-inline {
-    display: flex;
-    align-items: center;
-}
-
-.form-inline input {
-    margin-right: 5px;
-}
-</style>
 
 <script>
 document.getElementById('add-segment').addEventListener('click', function() {
