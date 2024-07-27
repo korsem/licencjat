@@ -8,7 +8,6 @@ from django.forms import inlineformset_factory
 from django.http import JsonResponse
 import calendar
 from django.contrib import messages
-from rest_framework import generics
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm, \
@@ -253,7 +252,6 @@ def equipment_exercises(request, equipment_id):
     exercises = Exercise.objects.filter(equipment=equipment, user=request.user)
     return render(request, 'you_train_api/equipment_exercises.html', {'equipment': equipment, 'exercises': exercises})
 
-#TODO podzielić na mniejsze pliki - ćwiczenia + sprzęt oraz na elementyu planu treingowego
 
 @login_required(login_url="/login")
 def training_plan_list(request):
@@ -344,6 +342,7 @@ def add_workout(request):
                 if exercise_formset.is_valid():
                     exercise_formset.save()
 
+            messages.success(request, f'Training "{workout.title}" has been saved!')
             return redirect('workout_list')
     else:
         workout_form = WorkoutForm()
@@ -356,6 +355,16 @@ def add_workout(request):
         'exercise_formsets': exercise_formsets,
     })
 
+@login_required(login_url="/login")
+def save_workout(request):
+    if request.method == 'POST':
+        workout_id = request.POST.get('workout_id')
+        workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+        workout.is_completed = True
+        workout.save()
+        messages.success(request, f'Training "{workout.title}" added succefully!')
+    return redirect('workout_list')
+
 
 @login_required(login_url="/login")
 def exercise_search(request):
@@ -364,14 +373,4 @@ def exercise_search(request):
     exercise_list = [{'id': exercise.id, 'name': exercise.name} for exercise in exercises]
     return JsonResponse(exercise_list, safe=False)
 
-def save_workout(request):
-    if request.method == 'POST':
-        print("huhuh")
-        form = WorkoutForm(request.POST)
-        if form.is_valid():
-            # Zapisz formularz lub wykonaj inne operacje
-            form.save()
-            return JsonResponse({'success': True, 'redirect_url': '/some-success-url/'})
-        else:
-            return JsonResponse({'success': False, 'error': 'Invalid data.'})
-    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+

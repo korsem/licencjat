@@ -15,14 +15,14 @@
     {% csrf_token %}
     {{ workout_form.as_p }}
 
-  <div class="row">
+    <div class="row">
         <div class="col-md-8">
             <h2>Segments</h2>
             <div id="segment-formset">
                 {{ segment_formset.management_form }}
                 {% for form in segment_formset %}
                 <div class="segment-form mb-3" id="segment-{{ forloop.counter0 }}">
-                <h3>Segment {{ forloop.counter }}</h3> <!-- Title with segment number -->
+                    <h3>Segment {{ forloop.counter }}</h3> <!-- Title with segment number -->
                     <div class="form-group">
                         {{ form.reps.label_tag }}
                         {{ form.reps }}
@@ -45,7 +45,7 @@
                             {% for exercise_formset in exercise_formsets %}
                                 {% if exercise_formset.prefix == "segment_"|add:forloop.counter0|add:"_exercises" %}
                                     {{ exercise_formset.management_form }}
-                                    <table class="table table-bordered exercise-table">
+                                    <table class="table" id="exercise-table">
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
@@ -141,179 +141,10 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-success mt-4" id="save-workout"> Save Workout</button>
+    <button type="submit" class="btn btn-success mt-4" id="save-workout">Save Workout</button>
 </form>
 
 
-<script>
-document.getElementById('add-segment').addEventListener('click', function() {
-    var segmentFormset = document.getElementById('segment-formset');
-    var newForm = segmentFormset.lastElementChild.cloneNode(true);
-    var formIdx = segmentFormset.children.length;
-
-    // Update form indices
-    newForm.innerHTML = newForm.innerHTML.replace(/__prefix__/g, formIdx);
-    newForm.innerHTML = newForm.innerHTML.replace(/_0/g, '_' + formIdx + '_0');
-    newForm.innerHTML = newForm.innerHTML.replace(/_1/g, '_' + formIdx + '_1');
-
-    // Clear the exercise list for the new segment
-    var exerciseList = newForm.querySelector('.exercise-list');
-    exerciseList.innerHTML = '';
-
-    // Remove existing delete button to avoid duplication
-    var existingDeleteButton = newForm.querySelector('.delete-segment');
-    if (existingDeleteButton) {
-        existingDeleteButton.remove();
-    }
-
-    // Create and append delete button
-    var deleteButton = document.createElement('button');
-    deleteButton.type = 'button';
-    deleteButton.className = 'btn btn-danger delete-segment';
-    deleteButton.textContent = 'Delete Segment';
-    deleteButton.dataset.segment = formIdx;
-    newForm.appendChild(deleteButton);
-
-    // Attach event listener for delete button
-    deleteButton.addEventListener('click', function() {
-        newForm.remove();
-    });
-
-    segmentFormset.appendChild(newForm);
-
-    // Attach event listener for Add Exercise button in the new segment
-    var addExerciseButton = newForm.querySelector('.add-exercise');
-    addExerciseButton.addEventListener('click', function() {
-        var segmentIndex = this.getAttribute('data-segment');
-        var modal = document.getElementById('exercise-modal');
-        modal.setAttribute('data-segment', segmentIndex);
-        modal.style.display = "block";
-
-        // Load all exercises immediately
-        loadExercises('');
-
-        document.getElementById('search-button').onclick = function() {
-            var query = document.getElementById('search-query').value;
-            loadExercises(query);
-        };
-    });
-});
-
-// Delegate event listener for existing and newly added delete buttons
-document.getElementById('segment-formset').addEventListener('click', function(event) {
-    if (event.target && event.target.classList.contains('delete-segment')) {
-        event.target.closest('.segment-form').remove();
-    }
-});
-
-// Delegate event listener for existing and newly added Add Exercise buttons
-document.getElementById('segment-formset').addEventListener('click', function(event) {
-    if (event.target && event.target.classList.contains('add-exercise')) {
-        var segmentIndex = event.target.getAttribute('data-segment');
-        var modal = document.getElementById('exercise-modal');
-        modal.setAttribute('data-segment', segmentIndex);
-        modal.style.display = "block";
-
-        // Load all exercises immediately
-        loadExercises('');
-
-        document.getElementById('search-button').onclick = function() {
-            var query = document.getElementById('search-query').value;
-            loadExercises(query);
-        };
-    }
-});
-
-function loadExercises(query) {
-    fetch(`/exercise_search/?query=${query}`)
-        .then(response => response.json())
-        .then(data => {
-            var exerciseList = document.getElementById('exercise-list');
-            exerciseList.innerHTML = '';
-            data.forEach(exercise => {
-                var exerciseItem = document.createElement('div');
-                exerciseItem.textContent = exercise.name;
-                exerciseItem.onclick = function() {
-                    document.getElementById('selected-exercise-id').value = exercise.id;
-                    document.getElementById('exercise-details-title').textContent = `${exercise.name} Details`;
-                    document.getElementById('exercise-modal').style.display = "none";
-                    document.getElementById('exercise-details-modal').style.display = "block";
-                };
-                exerciseList.appendChild(exerciseItem);
-            });
-        });
-}
-
-document.getElementById('save-exercise-details').addEventListener('click', function() {
-    saveExerciseDetails(false);
-});
-
-document.getElementById('save-add-next-exercise-details').addEventListener('click', function() {
-    saveExerciseDetails(true);
-});
-
-function saveExerciseDetails(addNext) {
-    var reps = document.getElementById('reps').value;
-    var duration_h = document.getElementById('duration_0').value;
-    var duration_m = document.getElementById('duration_1').value;
-    var duration_s = document.getElementById('duration_2').value;
-    var rest_time_m = document.getElementById('rest_time_0').value;
-    var rest_time_s = document.getElementById('rest_time_1').value;
-    var notes = document.getElementById('notes').value;
-
-    // Validate that either reps or duration is filled
-    if (!reps && (!duration_h && !duration_m && !duration_s)) {
-        alert('Either reps or duration must be specified.');
-        return;
-    }
-
-    var segmentIndex = document.getElementById('exercise-modal').getAttribute('data-segment');
-    var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
-    var exerciseFormset = segmentForm.querySelector('.exercise-formset .exercise-list');
-
-    var newExerciseItem = document.createElement('li');
-    newExerciseItem.textContent = `Exercise ID: ${document.getElementById('selected-exercise-id').value}, Reps: ${reps}, Duration: ${duration_h}:${duration_m}:${duration_s}, Rest Time: ${rest_time_m}:${rest_time_s}, Notes: ${notes}`;
-    exerciseFormset.appendChild(newExerciseItem);
-
-    if (!addNext) {
-        document.getElementById('exercise-details-modal').style.display = "none";
-    }
-
-    resetExerciseDetailsForm();
-}
-
-function resetExerciseDetailsForm() {
-    document.getElementById('reps').value = '';
-    document.getElementById('duration_0').value = '';
-    document.getElementById('duration_1').value = '';
-    document.getElementById('duration_2').value = '';
-    document.getElementById('rest_time_0').value = '';
-    document.getElementById('rest_time_1').value = '';
-    document.getElementById('notes').value = '';
-}
-
-document.getElementById('back-to-exercises').addEventListener('click', function() {
-    document.getElementById('exercise-details-modal').style.display = "none";
-    document.getElementById('exercise-modal').style.display = "block";
-});
-
-document.querySelector('.close').onclick = function() {
-    document.getElementById('exercise-modal').style.display = "none";
-};
-
-document.querySelector('.close-details').onclick = function() {
-    document.getElementById('exercise-details-modal').style.display = "none";
-};
-
-window.onclick = function(event) {
-    if (event.target == document.getElementById('exercise-modal')) {
-        document.getElementById('exercise-modal').style.display = "none";
-    }
-    if (event.target == document.getElementById('exercise-details-modal')) {
-        document.getElementById('exercise-details-modal').style.display = "none";
-    }
-};
-
-</script>
+<script src="/static/scripts/add_workout.js"></script>
 
 {% endblock %}

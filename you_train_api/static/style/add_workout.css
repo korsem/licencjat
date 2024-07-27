@@ -58,20 +58,20 @@
     width: 100%;
 }
 
-.exercise-table th, .exercise-table td {
+#exercise-table th, #exercise-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
 }
 
-.exercise-table th {
+#exercise-table th {
     background-color: #f0f0f0;
 }
 
-.exercise-table tbody tr:nth-child(even) {
+#exercise-table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.exercise-table tbody tr:hover {
+#exercise-table tbody tr:hover {
     background-color: #ddd;
 }
