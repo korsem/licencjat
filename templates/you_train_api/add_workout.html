@@ -22,6 +22,7 @@
                 {{ segment_formset.management_form }}
                 {% for form in segment_formset %}
                 <div class="segment-form mb-3" id="segment-{{ forloop.counter0 }}">
+                <h3>Segment {{ forloop.counter }}</h3> <!-- Title with segment number -->
                     <div class="form-group">
                         {{ form.reps.label_tag }}
                         {{ form.reps }}
@@ -258,6 +259,15 @@ function saveExerciseDetails(addNext) {
     var rest_time_m = document.getElementById('rest_time_0').value;
     var rest_time_s = document.getElementById('rest_time_1').value;
     var notes = document.getElementById('notes').value;
+
+
+    // print the values for the user to see
+    console.log(reps);
+    console.log(duration_h);
+    console.log(duration_m);
+    console.log(duration_s);
+    console.log(rest_time_m);
+    console.log(rest_time_s);
 
     // Validate that either reps or duration is filled
     if (!reps && (!duration_h && !duration_m && !duration_s)) {

@@ -131,7 +131,7 @@ class WorkoutSegment(models.Model):
     blok treningowy. Jeden blok, a wiele ćwiczeń - siłownia obwodowa,
     to w jaki sposób dane ćwiczenie jest robione opisuje model ExerciseInSegment
     '''
-    workout = models.ForeignKey(Workout, related_name='seggments', on_delete=models.CASCADE)
+    workout = models.ForeignKey(Workout, related_name='segments', on_delete=models.CASCADE)
     reps = models.IntegerField("Ile razy blok ma być powtórzony")
     rest_time = models.DurationField(help_text="Czas odpoczynku między seriami")
     notes = models.CharField(max_length=300, blank=True)
