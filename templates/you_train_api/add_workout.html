@@ -15,7 +15,7 @@
     {% csrf_token %}
     {{ workout_form.as_p }}
 
-    <div class="row">
+  <div class="row">
         <div class="col-md-8">
             <h2>Segments</h2>
             <div id="segment-formset">
@@ -149,15 +149,22 @@ document.getElementById('add-segment').addEventListener('click', function() {
     var newForm = segmentFormset.lastElementChild.cloneNode(true);
     var formIdx = segmentFormset.children.length;
 
+    // Update form indices
     newForm.innerHTML = newForm.innerHTML.replace(/__prefix__/g, formIdx);
     newForm.innerHTML = newForm.innerHTML.replace(/_0/g, '_' + formIdx + '_0');
     newForm.innerHTML = newForm.innerHTML.replace(/_1/g, '_' + formIdx + '_1');
-    segmentFormset.appendChild(newForm);
 
     // Clear the exercise list for the new segment
     var exerciseList = newForm.querySelector('.exercise-list');
     exerciseList.innerHTML = '';
 
+    // Remove existing delete button to avoid duplication
+    var existingDeleteButton = newForm.querySelector('.delete-segment');
+    if (existingDeleteButton) {
+        existingDeleteButton.remove();
+    }
+
+    // Create and append delete button
     var deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.className = 'btn btn-danger delete-segment';
@@ -165,12 +172,16 @@ document.getElementById('add-segment').addEventListener('click', function() {
     deleteButton.dataset.segment = formIdx;
     newForm.appendChild(deleteButton);
 
+    // Attach event listener for delete button
     deleteButton.addEventListener('click', function() {
         newForm.remove();
     });
 
+    segmentFormset.appendChild(newForm);
+
     // Attach event listener for Add Exercise button in the new segment
-    newForm.querySelector('.add-exercise').addEventListener('click', function() {
+    var addExerciseButton = newForm.querySelector('.add-exercise');
+    addExerciseButton.addEventListener('click', function() {
         var segmentIndex = this.getAttribute('data-segment');
         var modal = document.getElementById('exercise-modal');
         modal.setAttribute('data-segment', segmentIndex);
@@ -186,9 +197,17 @@ document.getElementById('add-segment').addEventListener('click', function() {
     });
 });
 
-document.querySelectorAll('.add-exercise').forEach(button => {
-    button.addEventListener('click', function() {
-        var segmentIndex = this.getAttribute('data-segment');
+// Delegate event listener for existing and newly added delete buttons
+document.getElementById('segment-formset').addEventListener('click', function(event) {
+    if (event.target && event.target.classList.contains('delete-segment')) {
+        event.target.closest('.segment-form').remove();
+    }
+});
+
+// Delegate event listener for existing and newly added Add Exercise buttons
+document.getElementById('segment-formset').addEventListener('click', function(event) {
+    if (event.target && event.target.classList.contains('add-exercise')) {
+        var segmentIndex = event.target.getAttribute('data-segment');
         var modal = document.getElementById('exercise-modal');
         modal.setAttribute('data-segment', segmentIndex);
         modal.style.display = "block";
@@ -200,7 +219,7 @@ document.querySelectorAll('.add-exercise').forEach(button => {
             var query = document.getElementById('search-query').value;
             loadExercises(query);
         };
-    });
+    }
 });
 
 function loadExercises(query) {
@@ -274,14 +293,6 @@ function resetExerciseDetailsForm() {
 document.getElementById('back-to-exercises').addEventListener('click', function() {
     document.getElementById('exercise-details-modal').style.display = "none";
     document.getElementById('exercise-modal').style.display = "block";
-});
-
-document.querySelectorAll('.delete-segment').forEach(button => {
-    button.addEventListener('click', function() {
-        var segmentIndex = this.getAttribute('data-segment');
-        var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
-        segmentForm.remove();
-    });
 });
 
 document.querySelector('.close').onclick = function() {

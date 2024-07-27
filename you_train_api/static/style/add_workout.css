@@ -37,6 +37,13 @@
     cursor: pointer;
 }
 
+.segment-form {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
 .form-inline {
     display: flex;
     align-items: center;
