@@ -355,15 +355,15 @@ def add_workout(request):
         'exercise_formsets': exercise_formsets,
     })
 
-@login_required(login_url="/login")
-def save_workout(request):
-    if request.method == 'POST':
-        workout_id = request.POST.get('workout_id')
-        workout = get_object_or_404(Workout, id=workout_id, user=request.user)
-        workout.is_completed = True
-        workout.save()
-        messages.success(request, f'Training "{workout.title}" added succefully!')
-    return redirect('workout_list')
+# @login_required(login_url="/login")
+# def save_workout(request):
+#     if request.method == 'POST':
+#         workout_id = request.POST.get('workout_id')
+#         workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+#         workout.is_completed = True
+#         workout.save()
+#         messages.success(request, f'Training "{workout.title}" added succefully!')
+#     return redirect('workout_list')
 
 
 @login_required(login_url="/login")
