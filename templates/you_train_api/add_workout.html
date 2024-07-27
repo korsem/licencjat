@@ -21,7 +21,7 @@
             <div id="segment-formset">
                 {{ segment_formset.management_form }}
                 {% for form in segment_formset %}
-                <div class="segment-form mb-3">
+                <div class="segment-form mb-3" id="segment-{{ forloop.counter0 }}">
                     <div class="form-group">
                         {{ form.reps.label_tag }}
                         {{ form.reps }}
@@ -36,10 +36,10 @@
                     </div>
                     <div class="form-group">
                         {{ form.notes.label_tag }}
-                         <textarea name="{{ form.notes.name }}" class="form-control" rows="4" placeholder="Notes to remember during segment">{{ form.notes.value|default_if_none:'' }}</textarea>
+                        <textarea name="{{ form.notes.name }}" class="form-control" rows="4" placeholder="Notes to remember during segment">{{ form.notes.value|default_if_none:'' }}</textarea>
                     </div>
                     <h3>Exercises</h3>
-                    <div class="exercise-formset">
+                    <div class="exercise-formset" id="exercise-formset-{{ forloop.counter0 }}">
                         {% if exercise_formsets %}
                             {% for exercise_formset in exercise_formsets %}
                                 {% if exercise_formset.prefix == "segment_"|add:forloop.counter0|add:"_exercises" %}
@@ -57,7 +57,7 @@
                                         <tbody>
                                             {% for exercise_form in exercise_formset %}
                                             <tr>
-                                               <td>{{ exercise_form.instance.exercise.name }}</td>
+                                                <td>{{ exercise_form.instance.exercise.name }}</td>
                                                 <td>{{ exercise_form.instance.reps }}</td>
                                                 <td>{{ exercise_form.instance.duration }}</td>
                                                 <td>{{ exercise_form.instance.rest_time }}</td>
@@ -69,7 +69,7 @@
                                 {% endif %}
                             {% endfor %}
                         {% endif %}
-                        <ul class="exercise-list">
+                        <ul class="exercise-list" id="exercise-list-{{ forloop.counter0 }}">
                             <!-- Exercise list items will be added here -->
                         </ul>
                         <button type="button" class="btn btn-secondary add-exercise" data-segment="{{ forloop.counter0 }}">Add Exercise</button>
@@ -154,6 +154,10 @@ document.getElementById('add-segment').addEventListener('click', function() {
     newForm.innerHTML = newForm.innerHTML.replace(/_1/g, '_' + formIdx + '_1');
     segmentFormset.appendChild(newForm);
 
+    // Clear the exercise list for the new segment
+    var exerciseList = newForm.querySelector('.exercise-list');
+    exerciseList.innerHTML = '';
+
     var deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.className = 'btn btn-danger delete-segment';
@@ -169,6 +173,7 @@ document.getElementById('add-segment').addEventListener('click', function() {
     newForm.querySelector('.add-exercise').addEventListener('click', function() {
         var segmentIndex = this.getAttribute('data-segment');
         var modal = document.getElementById('exercise-modal');
+        modal.setAttribute('data-segment', segmentIndex);
         modal.style.display = "block";
 
         // Load all exercises immediately
@@ -185,6 +190,7 @@ document.querySelectorAll('.add-exercise').forEach(button => {
     button.addEventListener('click', function() {
         var segmentIndex = this.getAttribute('data-segment');
         var modal = document.getElementById('exercise-modal');
+        modal.setAttribute('data-segment', segmentIndex);
         modal.style.display = "block";
 
         // Load all exercises immediately
@@ -232,6 +238,7 @@ function saveExerciseDetails(addNext) {
     var duration_s = document.getElementById('duration_2').value;
     var rest_time_m = document.getElementById('rest_time_0').value;
     var rest_time_s = document.getElementById('rest_time_1').value;
+    var notes = document.getElementById('notes').value;
 
     // Validate that either reps or duration is filled
     if (!reps && (!duration_h && !duration_m && !duration_s)) {
@@ -239,12 +246,12 @@ function saveExerciseDetails(addNext) {
         return;
     }
 
-    var segmentIndex = document.querySelector('.add-exercise[data-segment]').getAttribute('data-segment');
+    var segmentIndex = document.getElementById('exercise-modal').getAttribute('data-segment');
     var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
     var exerciseFormset = segmentForm.querySelector('.exercise-formset .exercise-list');
 
     var newExerciseItem = document.createElement('li');
-    newExerciseItem.textContent = `Exercise ID: ${document.getElementById('selected-exercise-id').value}, Reps: ${reps}, Duration: ${duration_h}:${duration_m}:${duration_s}, Rest Time: ${rest_time_m}:${rest_time_s}, Notes: ${document.getElementById('notes').value}`;
+    newExerciseItem.textContent = `Exercise ID: ${document.getElementById('selected-exercise-id').value}, Reps: ${reps}, Duration: ${duration_h}:${duration_m}:${duration_s}, Rest Time: ${rest_time_m}:${rest_time_s}, Notes: ${notes}`;
     exerciseFormset.appendChild(newExerciseItem);
 
     if (!addNext) {
@@ -284,5 +291,15 @@ document.querySelector('.close').onclick = function() {
 document.querySelector('.close-details').onclick = function() {
     document.getElementById('exercise-details-modal').style.display = "none";
 };
+
+window.onclick = function(event) {
+    if (event.target == document.getElementById('exercise-modal')) {
+        document.getElementById('exercise-modal').style.display = "none";
+    }
+    if (event.target == document.getElementById('exercise-details-modal')) {
+        document.getElementById('exercise-details-modal').style.display = "none";
+    }
+};
 </script>
+
 {% endblock %}

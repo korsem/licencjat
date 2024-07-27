@@ -351,10 +351,9 @@ def add_workout(request):
 
         # Prepare exercise formsets for each segment in the formset
         exercise_formsets = []
-        for i, form in enumerate(segment_formset):
-            exercise_formset = ExerciseInSegmentFormSet(prefix=f'segment_{i}_exercises')
+        for i, form in enumerate(segment_formset.forms):
+            exercise_formset = ExerciseInSegmentFormSet(instance=form.instance, prefix=f'segment_{i}_exercises')
             exercise_formsets.append(exercise_formset)
-            print("i", form)
 
     return render(request, 'you_train_api/add_workout.html', {
         'workout_form': workout_form,

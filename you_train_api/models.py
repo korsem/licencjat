@@ -129,8 +129,7 @@ class WorkoutSession(models.Model):
 class WorkoutSegment(models.Model):
     '''
     blok treningowy. Jeden blok, a wiele ćwiczeń - siłownia obwodowa,
-    musi być we throoug opisany w jaki sposób odbywają sie ćwizenia tzn czy cwiczenie jest po czasie, po ilości powtórzeń, po dystansie,
-    domyslnie jak sa sa opisywanie w workout segment
+    to w jaki sposób dane ćwiczenie jest robione opisuje model ExerciseInSegment
     '''
     workout = models.ForeignKey(Workout, related_name='seggments', on_delete=models.CASCADE)
     reps = models.IntegerField("Ile razy blok ma być powtórzony")
