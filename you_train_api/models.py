@@ -63,7 +63,7 @@ class WorkoutPlan(models.Model):
     TrainingPlan nie może istnieć bez workoutplan a WorkoutPlan bez training plan, sa OneToOne
     '''
     training_plan = models.OneToOneField(TrainingPlan, related_name='workout_plan', on_delete=models.CASCADE)
-    start_date = models.DateField(default=timezone.now(), help_text="Data rozpoczęcia planu")
+    start_date = models.DateField(default=timezone.now, help_text="Data rozpoczęcia planu")
     end_date = models.DateField(null=True, blank=True, help_text="Data zakończenia planu") #  "do momentu aż wyłącze", ale tyo chyba przy planie cyklicznym
     is_cyclic = models.BooleanField(default=False, help_text="Czy powtarza się co tydzień?") # if true cycle_number is required
     cycle_length = models.PositiveIntegerField(null=True, blank=True, help_text="Ile tygodni ma trwać Plan?")
