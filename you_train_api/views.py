@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.decorators import api_view
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User, Group
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
 import calendar
+from django.contrib import messages
 from rest_framework import generics
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
@@ -15,7 +15,6 @@ from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, Train
     UserProfileForm, UserSettingsForm, WorkoutForm, ExerciseInSegmentForm, WorkoutSegmentForm
 from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExerciseInSegment, \
     WorkoutSession
-from you_train_api.serializers import ExerciseSerializer
 
 
 @login_required(login_url="/login")
@@ -336,6 +335,7 @@ def add_workout(request):
         if workout_form.is_valid() and segment_formset.is_valid():
             workout = workout_form.save()
             segments = segment_formset.save(commit=False)
+
             for segment in segments:
                 segment.workout = workout
                 segment.save()
@@ -348,12 +348,7 @@ def add_workout(request):
     else:
         workout_form = WorkoutForm()
         segment_formset = WorkoutSegmentFormSet(prefix='segments')
-
-        # Prepare exercise formsets for each segment in the formset
-        exercise_formsets = []
-        for i, form in enumerate(segment_formset.forms):
-            exercise_formset = ExerciseInSegmentFormSet(instance=form.instance, prefix=f'segment_{i}_exercises')
-            exercise_formsets.append(exercise_formset)
+        exercise_formsets = [ExerciseInSegmentFormSet(instance=form.instance, prefix=f'segment_{i}_exercises') for i, form in enumerate(segment_formset.forms)]
 
     return render(request, 'you_train_api/add_workout.html', {
         'workout_form': workout_form,
@@ -368,3 +363,15 @@ def exercise_search(request):
     exercises = Exercise.objects.filter(user=request.user, name__icontains=query)
     exercise_list = [{'id': exercise.id, 'name': exercise.name} for exercise in exercises]
     return JsonResponse(exercise_list, safe=False)
+
+def save_workout(request):
+    if request.method == 'POST':
+        print("huhuh")
+        form = WorkoutForm(request.POST)
+        if form.is_valid():
+            # Zapisz formularz lub wykonaj inne operacje
+            form.save()
+            return JsonResponse({'success': True, 'redirect_url': '/some-success-url/'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid data.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})

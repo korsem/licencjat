@@ -11,7 +11,7 @@
 
 <h1>Add New Workout</h1>
 
-<form method="post">
+<form id="workout-form" method="post">
     {% csrf_token %}
     {{ workout_form.as_p }}
 
@@ -74,6 +74,7 @@
                             <!-- Exercise list items will be added here -->
                         </ul>
                         <button type="button" class="btn btn-secondary add-exercise" data-segment="{{ forloop.counter0 }}">Add Exercise</button>
+                        <button type="button" class="btn btn-primary save-segment" data-segment="{{ forloop.counter0 }}">Save Segment</button>
                     </div>
                     {% if form.instance.pk %}
                     <button type="button" class="btn btn-danger delete-segment" data-segment="{{ forloop.counter0 }}">Delete Segment</button>
@@ -140,7 +141,7 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-success mt-4">Save Workout</button>
+    <button type="submit" class="btn btn-success mt-4" id="save-workout"> Save Workout</button>
 </form>
 
 
@@ -260,15 +261,6 @@ function saveExerciseDetails(addNext) {
     var rest_time_s = document.getElementById('rest_time_1').value;
     var notes = document.getElementById('notes').value;
 
-
-    // print the values for the user to see
-    console.log(reps);
-    console.log(duration_h);
-    console.log(duration_m);
-    console.log(duration_s);
-    console.log(rest_time_m);
-    console.log(rest_time_s);
-
     // Validate that either reps or duration is filled
     if (!reps && (!duration_h && !duration_m && !duration_s)) {
         alert('Either reps or duration must be specified.');
@@ -321,6 +313,7 @@ window.onclick = function(event) {
         document.getElementById('exercise-details-modal').style.display = "none";
     }
 };
+
 </script>
 
 {% endblock %}
