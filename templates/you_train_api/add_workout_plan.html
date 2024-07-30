@@ -5,7 +5,7 @@
 {% block content %}
 <h1>Add New Workout Plan for {{ training_plan.title }}</h1>
 
-<form method="post">
+<form id="workoutPlanForm" method="post">
     {% csrf_token %}
     <div>
         {{ form.start_date.label_tag }} {{ form.start_date }}
@@ -20,7 +20,8 @@
     <div id="end_date_field" style="display: none;">
         {{ form.end_date.label_tag }} {{ form.end_date }}
     </div>
-    <button type="submit" class="btn btn-primary">Save Workout Plan</button>
+    <button type="submit" class="btn btn-primary" name="submit_action" value="save">Save Workout Plan</button>
+    <button type="submit" class="btn btn-secondary" name="submit_action" value="add_workouts">Save and Add Workouts</button>
 </form>
 
 <script>

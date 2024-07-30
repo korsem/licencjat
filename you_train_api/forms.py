@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan, Workout, WorkoutSegment, \
-    ExerciseInSegment
+    ExerciseInSegment, WorkoutInPlan
 from you_train_api.widgets import HMSTimeField, MSTimeField
 
 
@@ -40,6 +40,7 @@ class ExerciseForm(forms.ModelForm):
     class Meta:
         model = Exercise # jeslik is_cardio to muscle group plus duration
         fields = ['name', 'description', 'muscle_group', 'equipment', 'is_cardio', 'video_url']
+
 
 class EquipmentForm(forms.ModelForm):
     class Meta:
@@ -123,4 +124,12 @@ class ExerciseInSegmentForm(forms.ModelForm):
 
         if not reps and not duration:
             raise forms.ValidationError("Either reps or duration must be specified.")
+
+class WorkoutSelectionForm(forms.Form):
+    query = forms.CharField(max_length=100, required=False, label='Search for workouts')
+
+class WorkoutInPlanForm(forms.ModelForm):
+    class Meta:
+        model = WorkoutInPlan
+        fields = ['workout', 'day_of_week']
 

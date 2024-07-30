@@ -134,6 +134,8 @@ function saveExerciseDetails(addNext) {
     }
 
     var segmentIndex = document.getElementById('exercise-modal').getAttribute('data-segment');
+
+    console.log(`Saving exercise details for segment ${segmentIndex}`);
     var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
     var exerciseFormset = segmentForm.querySelector('.exercise-formset .exercise-list');
 

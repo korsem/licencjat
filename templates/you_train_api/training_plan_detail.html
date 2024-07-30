@@ -28,5 +28,18 @@
 </form>
 {% endif %}
 
+<!-- Delete Plan Button -->
+<form method="post" action="{% url 'delete_training_plan' training_plan.id %}" style="display:inline;" onsubmit="return confirmDelete();">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Delete Plan</button>
+</form>
+
 <a href="{% url 'training_plan_list' %}" class="btn btn-secondary mt-4">Back to Training Plans</a>
+
+<script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete the plan "{{ training_plan.title }}"? This action cannot be undone.');
+    }
+</script>
+
 {% endblock %}

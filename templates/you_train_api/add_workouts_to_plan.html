@@ -1,0 +1,27 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Add Workouts to {{ training_plan.title }}{% endblock %}
+
+{% block content %}
+<h1>Add Workouts to {{ training_plan.title }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div>
+        {{ form.workout.label_tag }} {{ form.workout }}
+    </div>
+    <div>
+        {{ form.day_of_week.label_tag }} {{ form.day_of_week }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="submit" name="add_another" class="btn btn-secondary">Save and Add Another</button>
+</form>
+
+<h2>Available Workouts</h2>
+<ul>
+    {% for workout in workouts %}
+        <li>{{ workout.title }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

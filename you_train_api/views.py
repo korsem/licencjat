@@ -11,9 +11,9 @@ from django.contrib import messages
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import RegisterForm, ExerciseForm, EquipmentForm, TrainingPlanForm, WorkoutPlanForm, \
-    UserProfileForm, UserSettingsForm, WorkoutForm, ExerciseInSegmentForm, WorkoutSegmentForm
+    UserProfileForm, UserSettingsForm, WorkoutForm, ExerciseInSegmentForm, WorkoutSegmentForm, WorkoutInPlanForm
 from you_train_api.models import Exercise, Equipment, TrainingPlan, Workout, WorkoutSegment, ExerciseInSegment, \
-    WorkoutSession
+    WorkoutSession, WorkoutPlan
 
 
 @login_required(login_url="/login")
@@ -267,6 +267,7 @@ def training_plan_list(request):
 
 @login_required(login_url="/login")
 def add_training_plan(request):
+    print("trainigns: ", TrainingPlan.objects.filter(user=request.user))
     if request.method == "POST":
         form = TrainingPlanForm(request.POST)
         if form.is_valid():
@@ -278,19 +279,37 @@ def add_training_plan(request):
         form = TrainingPlanForm()
     return render(request, 'you_train_api/add_training_plan.html', {'form': form})
 
+
 @login_required(login_url="/login")
 def add_workout_plan(request, training_plan_id):
     training_plan = get_object_or_404(TrainingPlan, id=training_plan_id, user=request.user)
+    print("training_plan: ", training_plan)
+    print("wortkout plans", WorkoutPlan.objects.all())
+
     if request.method == "POST":
         form = WorkoutPlanForm(request.POST)
         if form.is_valid():
             workout_plan = form.save(commit=False)
             workout_plan.training_plan = training_plan
             workout_plan.save()
+            if request.POST.get('submit_action') == 'add_workouts':
+                return redirect('add_workouts_to_plan', training_plan_id=training_plan.id)
             return redirect('training_plan_detail', training_plan_id=training_plan.id)
     else:
         form = WorkoutPlanForm()
-    return render(request, 'you_train_api/add_workout_plan.html', {'form': form, 'training_plan': training_plan})
+
+    return render(request, 'you_train_api/add_workout_plan.html', {
+        'form': form,
+        'training_plan': training_plan
+    })
+
+
+@login_required(login_url="/login")
+def workout_search(request):
+    query = request.GET.get('query', '')
+    workouts = Workout.objects.filter(user=request.user, title__icontains=query)
+    workout_list = [{'id': workout.id, 'title': workout.title} for workout in workouts]
+    return JsonResponse(workout_list, safe=False)
 
 @login_required(login_url="/login")
 def training_plan_detail(request, training_plan_id):
@@ -355,16 +374,6 @@ def add_workout(request):
         'exercise_formsets': exercise_formsets,
     })
 
-# @login_required(login_url="/login")
-# def save_workout(request):
-#     if request.method == 'POST':
-#         workout_id = request.POST.get('workout_id')
-#         workout = get_object_or_404(Workout, id=workout_id, user=request.user)
-#         workout.is_completed = True
-#         workout.save()
-#         messages.success(request, f'Training "{workout.title}" added succefully!')
-#     return redirect('workout_list')
-
 
 @login_required(login_url="/login")
 def exercise_search(request):
@@ -372,5 +381,48 @@ def exercise_search(request):
     exercises = Exercise.objects.filter(user=request.user, name__icontains=query)
     exercise_list = [{'id': exercise.id, 'name': exercise.name} for exercise in exercises]
     return JsonResponse(exercise_list, safe=False)
+
+
+@login_required(login_url="/login")
+def add_workouts_to_plan(request, training_plan_id):
+    training_plan = get_object_or_404(TrainingPlan, id=training_plan_id, user=request.user)
+    workout_plan = training_plan.workout_plan
+
+    if request.method == "POST":
+        form = WorkoutInPlanForm(request.POST)
+        if form.is_valid():
+            workout_in_plan = form.save(commit=False)
+            workout_in_plan.workout_plan = workout_plan
+            workout_in_plan.save()
+            if 'add_another' in request.POST:
+                return redirect('add_workouts_to_plan', training_plan_id=training_plan.id)
+            return redirect('training_plan_detail', training_plan_id=training_plan.id)
+    else:
+        form = WorkoutInPlanForm()
+
+    workouts = Workout.objects.filter(user=request.user)
+    return render(request, 'you_train_api/add_workouts_to_plan.html', {
+        'form': form,
+        'workouts': workouts,
+        'training_plan': training_plan,
+        'workout_plan': workout_plan
+    })
+
+
+@login_required(login_url="/login")
+def delete_training_plan(request, training_plan_id):
+    training_plan = get_object_or_404(TrainingPlan, id=training_plan_id, user=request.user)
+
+    if request.method == "POST":
+        # Delete the associated WorkoutPlan, if exists
+        if hasattr(training_plan, 'workout_plan'):
+            training_plan.workout_plan.delete()
+        # Delete the TrainingPlan itself
+        training_plan.delete()
+        return redirect('training_plan_list')
+
+    # If not a POST request, redirect back to the detail page
+    return redirect('training_plan_detail', training_plan_id=training_plan_id)
+
 
 
