@@ -311,24 +311,52 @@ def workout_search(request):
     workout_list = [{'id': workout.id, 'title': workout.title} for workout in workouts]
     return JsonResponse(workout_list, safe=False)
 
+
 @login_required(login_url="/login")
 def training_plan_detail(request, training_plan_id):
     training_plan = get_object_or_404(TrainingPlan, id=training_plan_id, user=request.user)
     workout_plan = training_plan.workout_plan
 
     if request.method == 'POST':
-        # Change the active training plan
         if 'set_active' in request.POST:
-            # Deactivate the current active plan, if any
-            TrainingPlan.objects.filter(user=request.user, is_active=True).update(is_active=False)
-            # Activate the selected plan
-            training_plan.is_active = True
+            # Check if there is already an active plan
+            active_plan = TrainingPlan.objects.filter(user=request.user, is_active=True).exclude(
+                id=training_plan_id).first()
+
+            if active_plan:
+                # Prompt for confirmation
+                if 'confirm' in request.POST:
+                    # User confirmed, deactivate the old plan and activate the new one
+                    active_plan.is_active = False
+                    active_plan.save()
+
+                    training_plan.is_active = True
+                    training_plan.save()
+
+                    messages.success(request,
+                                     f"The plan '{training_plan.title}' is now active. '{active_plan.title}' has been deactivated.")
+                    return redirect('training_plan_detail', training_plan_id=training_plan_id)
+                else:
+                    # Redirect to the same page with a query parameter to trigger the confirmation dialog
+                    return redirect(f"{request.path}?confirm=true")
+            else:
+                # No active plan, just activate the new plan
+                training_plan.is_active = True
+                training_plan.save()
+                messages.success(request, f"The plan '{training_plan.title}' is now active.")
+                return redirect('training_plan_detail', training_plan_id=training_plan_id)
+
+        elif 'deactivate' in request.POST:
+            # Deactivate the current plan
+            training_plan.is_active = False
             training_plan.save()
+            messages.success(request, f"The plan '{training_plan.title}' has been deactivated.")
             return redirect('training_plan_detail', training_plan_id=training_plan_id)
 
     return render(request, 'you_train_api/training_plan_detail.html', {
         'training_plan': training_plan,
         'workout_plan': workout_plan,
+        'confirm': 'confirm' in request.GET
     })
 
 def workout_list(request):

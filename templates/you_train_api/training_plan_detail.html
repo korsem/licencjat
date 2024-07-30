@@ -21,10 +21,14 @@
 
 {% if training_plan.is_active %}
 <p><strong style="color: green;">This is the active training plan</strong></p>
+<form method="post" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" name="deactivate" class="btn btn-warning" onclick="return confirmDeactivation();">Deactivate Plan</button>
+</form>
 {% else %}
 <form method="post" style="display:inline;">
     {% csrf_token %}
-    <button type="submit" name="set_active" class="btn btn-primary">Set as Active</button>
+    <button type="submit" name="set_active" class="btn btn-primary" onclick="return confirmActivation();">Set as Active</button>
 </form>
 {% endif %}
 
@@ -39,6 +43,18 @@
 <script>
     function confirmDelete() {
         return confirm('Are you sure you want to delete the plan "{{ training_plan.title }}"? This action cannot be undone.');
+    }
+
+    function confirmActivation() {
+        {% if confirm %}
+            return confirm('There is already an active plan. Setting this plan as active will deactivate the current active plan. Are you sure you want to proceed?');
+        {% else %}
+            return true;
+        {% endif %}
+    }
+
+    function confirmDeactivation() {
+        return confirm('Are you sure you want to deactivate this plan?');
     }
 </script>
 
