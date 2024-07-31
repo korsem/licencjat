@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('you_train_api', '0004_alter_workoutplan_start_date_and_more'),
+        ("you_train_api", "0004_alter_workoutplan_start_date_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='workoutplan',
-            name='start_date',
-            field=models.DateField(default=django.utils.timezone.now, help_text='Data rozpoczęcia planu'),
+            model_name="workoutplan",
+            name="start_date",
+            field=models.DateField(
+                default=django.utils.timezone.now, help_text="Data rozpoczęcia planu"
+            ),
         ),
     ]

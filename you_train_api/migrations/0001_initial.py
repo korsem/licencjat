@@ -16,114 +16,376 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Equipment',
+            name="Equipment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('resistance', models.FloatField(blank=True, help_text='Resistance in kg', null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.CharField(blank=True, max_length=300)),
+                (
+                    "resistance",
+                    models.FloatField(
+                        blank=True, help_text="Resistance in kg", null=True
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Exercise',
+            name="Exercise",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('muscle_group', models.CharField(blank=True, choices=[('upper', 'Upper Body'), ('lower', 'Lower Body'), ('core', 'Core'), ('full', 'Full Body'), ('chest', 'Chest'), ('back', 'Back'), ('shoulders', 'Shoulders'), ('biceps', 'Biceps'), ('triceps', 'Triceps'), ('forearms', 'Forearms'), ('quadriceps', 'Quadriceps'), ('hamstrings', 'Hamstrings'), ('calves', 'Calves'), ('glutes', 'Glutes'), ('adductors', 'Adductors'), ('abductors', 'Abductors'), ('obliques', 'Obliques'), ('transverse_abdominis', 'Transverse Abdominis')], max_length=100)),
-                ('is_cardio', models.BooleanField(default=False, help_text='Czy ćwiczenie jest cardio?')),
-                ('video_url', models.URLField(blank=True, help_text='Link do filmiku instruktażowego z ćwiczeniem')),
-                ('equipment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='exercises', to='you_train_api.equipment')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.CharField(blank=True, max_length=300)),
+                (
+                    "muscle_group",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("upper", "Upper Body"),
+                            ("lower", "Lower Body"),
+                            ("core", "Core"),
+                            ("full", "Full Body"),
+                            ("chest", "Chest"),
+                            ("back", "Back"),
+                            ("shoulders", "Shoulders"),
+                            ("biceps", "Biceps"),
+                            ("triceps", "Triceps"),
+                            ("forearms", "Forearms"),
+                            ("quadriceps", "Quadriceps"),
+                            ("hamstrings", "Hamstrings"),
+                            ("calves", "Calves"),
+                            ("glutes", "Glutes"),
+                            ("adductors", "Adductors"),
+                            ("abductors", "Abductors"),
+                            ("obliques", "Obliques"),
+                            ("transverse_abdominis", "Transverse Abdominis"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "is_cardio",
+                    models.BooleanField(
+                        default=False, help_text="Czy ćwiczenie jest cardio?"
+                    ),
+                ),
+                (
+                    "video_url",
+                    models.URLField(
+                        blank=True,
+                        help_text="Link do filmiku instruktażowego z ćwiczeniem",
+                    ),
+                ),
+                (
+                    "equipment",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="exercises",
+                        to="you_train_api.equipment",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ExcerciseInSegment',
+            name="ExcerciseInSegment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reps', models.IntegerField(blank=True, default=1, verbose_name='Ile powtórzeń')),
-                ('duration', models.DurationField(blank=True, null=True, verbose_name='Długość ćwiczenia')),
-                ('rest_time', models.DurationField(blank=True, help_text='Czas odpoczynku między seriami', null=True)),
-                ('notes', models.CharField(blank=True, max_length=300)),
-                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='you_train_api.exercise')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "reps",
+                    models.IntegerField(
+                        blank=True, default=1, verbose_name="Ile powtórzeń"
+                    ),
+                ),
+                (
+                    "duration",
+                    models.DurationField(
+                        blank=True, null=True, verbose_name="Długość ćwiczenia"
+                    ),
+                ),
+                (
+                    "rest_time",
+                    models.DurationField(
+                        blank=True,
+                        help_text="Czas odpoczynku między seriami",
+                        null=True,
+                    ),
+                ),
+                ("notes", models.CharField(blank=True, max_length=300)),
+                (
+                    "exercise",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="you_train_api.exercise",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TrainingPlan',
+            name="TrainingPlan",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=100)),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('goal', models.CharField(blank=True, max_length=100)),
-                ('is_active', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=100)),
+                ("description", models.CharField(blank=True, max_length=300)),
+                ("goal", models.CharField(blank=True, max_length=100)),
+                ("is_active", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WorkoutPlan',
+            name="WorkoutPlan",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_date', models.DateField(default=datetime.datetime(2024, 7, 16, 7, 14, 48, 994039, tzinfo=datetime.timezone.utc), help_text='Data rozpoczęcia planu')),
-                ('end_date', models.DateField(blank=True, help_text='Data zakończenia planu', null=True)),
-                ('is_cyclic', models.BooleanField(default=False, help_text='Czy powtarza się co tydzień?')),
-                ('cycle_length', models.PositiveIntegerField(default=1, help_text='Ile tygodni ma trwać Plan?')),
-                ('training_plan', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='workout_plan', to='you_train_api.trainingplan')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "start_date",
+                    models.DateField(
+                        default=datetime.datetime(
+                            2024, 7, 16, 7, 14, 48, 994039, tzinfo=datetime.timezone.utc
+                        ),
+                        help_text="Data rozpoczęcia planu",
+                    ),
+                ),
+                (
+                    "end_date",
+                    models.DateField(
+                        blank=True, help_text="Data zakończenia planu", null=True
+                    ),
+                ),
+                (
+                    "is_cyclic",
+                    models.BooleanField(
+                        default=False, help_text="Czy powtarza się co tydzień?"
+                    ),
+                ),
+                (
+                    "cycle_length",
+                    models.PositiveIntegerField(
+                        default=1, help_text="Ile tygodni ma trwać Plan?"
+                    ),
+                ),
+                (
+                    "training_plan",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workout_plan",
+                        to="you_train_api.trainingplan",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Workout',
+            name="Workout",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=100)),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('day_of_week', models.IntegerField(blank=True, choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')], null=True)),
-                ('workout_plan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='workouts', to='you_train_api.workoutplan')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=100)),
+                ("description", models.CharField(blank=True, max_length=300)),
+                (
+                    "day_of_week",
+                    models.IntegerField(
+                        blank=True,
+                        choices=[
+                            (0, "Monday"),
+                            (1, "Tuesday"),
+                            (2, "Wednesday"),
+                            (3, "Thursday"),
+                            (4, "Friday"),
+                            (5, "Saturday"),
+                            (6, "Sunday"),
+                        ],
+                        null=True,
+                    ),
+                ),
+                (
+                    "workout_plan",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workouts",
+                        to="you_train_api.workoutplan",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WorkoutSegment',
+            name="WorkoutSegment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reps', models.IntegerField(verbose_name='Ile razy blok ma być powtórzony')),
-                ('rest_time', models.DurationField(help_text='Czas odpoczynku między seriami')),
-                ('notes', models.CharField(blank=True, max_length=300)),
-                ('excercises', models.ManyToManyField(through='you_train_api.ExcerciseInSegment', to='you_train_api.exercise')),
-                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='seggments', to='you_train_api.workout')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "reps",
+                    models.IntegerField(verbose_name="Ile razy blok ma być powtórzony"),
+                ),
+                (
+                    "rest_time",
+                    models.DurationField(help_text="Czas odpoczynku między seriami"),
+                ),
+                ("notes", models.CharField(blank=True, max_length=300)),
+                (
+                    "excercises",
+                    models.ManyToManyField(
+                        through="you_train_api.ExcerciseInSegment",
+                        to="you_train_api.exercise",
+                    ),
+                ),
+                (
+                    "workout",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="seggments",
+                        to="you_train_api.workout",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='excerciseinsegment',
-            name='workout_segment',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='you_train_api.workoutsegment'),
+            model_name="excerciseinsegment",
+            name="workout_segment",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="you_train_api.workoutsegment",
+            ),
         ),
         migrations.CreateModel(
-            name='WorkoutSession',
+            name="WorkoutSession",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('date', models.DateField()),
-                ('is_completed', models.BooleanField(default=False)),
-                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sessions', to='you_train_api.workout')),
-                ('workout_plan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sessions', to='you_train_api.workoutplan')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.CharField(blank=True, max_length=300)),
+                ("date", models.DateField()),
+                ("is_completed", models.BooleanField(default=False)),
+                (
+                    "workout",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sessions",
+                        to="you_train_api.workout",
+                    ),
+                ),
+                (
+                    "workout_plan",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sessions",
+                        to="you_train_api.workoutplan",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WorkoutStats',
+            name="WorkoutStats",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('distance', models.FloatField(blank=True, null=True)),
-                ('duration', models.DurationField(blank=True, null=True)),
-                ('avg_heart_rate', models.IntegerField(blank=True, null=True)),
-                ('max_heart_rate', models.IntegerField(blank=True, null=True)),
-                ('satisfaction', models.IntegerField(blank=True, null=True)),
-                ('well_being', models.IntegerField(blank=True, null=True)),
-                ('workout_session', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='you_train_api.workoutsession')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.CharField(blank=True, max_length=300)),
+                ("distance", models.FloatField(blank=True, null=True)),
+                ("duration", models.DurationField(blank=True, null=True)),
+                ("avg_heart_rate", models.IntegerField(blank=True, null=True)),
+                ("max_heart_rate", models.IntegerField(blank=True, null=True)),
+                ("satisfaction", models.IntegerField(blank=True, null=True)),
+                ("well_being", models.IntegerField(blank=True, null=True)),
+                (
+                    "workout_session",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="you_train_api.workoutsession",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='trainingplan',
-            constraint=models.UniqueConstraint(condition=models.Q(('is_active', True)), fields=('user',), name='unique_active_training_plan_per_user'),
+            model_name="trainingplan",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("is_active", True)),
+                fields=("user",),
+                name="unique_active_training_plan_per_user",
+            ),
         ),
     ]

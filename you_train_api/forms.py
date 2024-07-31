@@ -3,8 +3,16 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from you_train_api.models import Exercise, Equipment, TrainingPlan, WorkoutPlan, Workout, WorkoutSegment, \
-    ExerciseInSegment, WorkoutInPlan
+from you_train_api.models import (
+    Exercise,
+    Equipment,
+    TrainingPlan,
+    WorkoutPlan,
+    Workout,
+    WorkoutSegment,
+    ExerciseInSegment,
+    WorkoutInPlan,
+)
 from you_train_api.widgets import HMSTimeField, MSTimeField
 
 
@@ -15,55 +23,65 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ["username", "email", "password1", "password2"]
 
+
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ["username", "email"]
         labels = {
-            'username': _('Username'),
-            'email': _('Email'),
+            "username": _("Username"),
+            "email": _("Email"),
         }
+
 
 class UserSettingsForm(forms.Form):
     LANGUAGE_CHOICES = [
-        ('en', 'English'),
-        ('pl', 'Polish'),
+        ("en", "English"),
+        ("pl", "Polish"),
     ]
     THEME_CHOICES = [
-        ('light', 'Light Mode'),
-        ('dark', 'Dark Mode'),
+        ("light", "Light Mode"),
+        ("dark", "Dark Mode"),
     ]
-    language = forms.ChoiceField(choices=LANGUAGE_CHOICES, label=_('Language'))
-    theme = forms.ChoiceField(choices=THEME_CHOICES, label=_('Theme'), required=False)
+    language = forms.ChoiceField(choices=LANGUAGE_CHOICES, label=_("Language"))
+    theme = forms.ChoiceField(choices=THEME_CHOICES, label=_("Theme"), required=False)
+
 
 class ExerciseForm(forms.ModelForm):
     class Meta:
-        model = Exercise # jeslik is_cardio to muscle group plus duration
-        fields = ['name', 'description', 'muscle_group', 'equipment', 'is_cardio', 'video_url']
+        model = Exercise  # jeslik is_cardio to muscle group plus duration
+        fields = [
+            "name",
+            "description",
+            "muscle_group",
+            "equipment",
+            "is_cardio",
+            "video_url",
+        ]
 
 
 class EquipmentForm(forms.ModelForm):
     class Meta:
         model = Equipment
-        fields = ['name', 'description', 'resistance']
+        fields = ["name", "description", "resistance"]
 
 
 class TrainingPlanForm(forms.ModelForm):
     class Meta:
         model = TrainingPlan
-        fields = ['title', 'description', 'goal', 'is_active']
+        fields = ["title", "description", "goal", "is_active"]
         widgets = {
-            'goal': forms.TextInput(attrs={'placeholder': 'Enter your goal here'}),
+            "goal": forms.TextInput(attrs={"placeholder": "Enter your goal here"}),
         }
 
 
 class WorkoutPlanForm(forms.ModelForm):
     class Meta:
         model = WorkoutPlan
-        fields = ['start_date', 'end_date', 'is_cyclic', 'cycle_length']
+        fields = ["start_date", "end_date", "is_cyclic", "cycle_length"]
         widgets = {
-            'start_date': forms.DateInput(attrs={'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'type': 'date'}),
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+            "end_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     def clean(self):
@@ -74,29 +92,36 @@ class WorkoutPlanForm(forms.ModelForm):
 
         if is_cyclic:
             if end_date:
-                raise forms.ValidationError('Cyclic plans should not have an end date.')
+                raise forms.ValidationError("Cyclic plans should not have an end date.")
             if not cycle_length:
-                raise forms.ValidationError('Cyclic plans must have a cycle length.')
+                raise forms.ValidationError("Cyclic plans must have a cycle length.")
         else:
             if not end_date:
-                raise forms.ValidationError('Non-cyclic plans must have an end date.')
+                raise forms.ValidationError("Non-cyclic plans must have an end date.")
             if end_date <= cleaned_data.get("start_date"):
-                raise forms.ValidationError('End date must be after the start date.')
-            cleaned_data['cycle_length'] = None  # Ensure cycle_length is null for non-cyclic plans
+                raise forms.ValidationError("End date must be after the start date.")
+            cleaned_data["cycle_length"] = (
+                None  # Ensure cycle_length is null for non-cyclic plans
+            )
 
         return cleaned_data
+
 
 class WorkoutForm(forms.ModelForm):
     class Meta:
         model = Workout
-        fields = ['title', 'description']
+        fields = ["title", "description"]
+
 
 class WorkoutSegmentForm(forms.ModelForm):
-    rest_time = MSTimeField(label='Rest Time', required=True)
-    reps = forms.IntegerField(label='Ile razy blok ma być powtórzony', required=True, min_value=1, initial=1)
+    rest_time = MSTimeField(label="Rest Time", required=True)
+    reps = forms.IntegerField(
+        label="Ile razy blok ma być powtórzony", required=True, min_value=1, initial=1
+    )
+
     class Meta:
         model = WorkoutSegment
-        fields = ['reps', 'rest_time', 'notes']
+        fields = ["reps", "rest_time", "notes"]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -107,15 +132,14 @@ class WorkoutSegmentForm(forms.ModelForm):
             raise forms.ValidationError("Both reps and rest time are required.")
 
 
-
 class ExerciseInSegmentForm(forms.ModelForm):
 
-    duration = HMSTimeField(label='Duration', required=False)
-    rest_time = MSTimeField(label='Rest Time', required=True)
+    duration = HMSTimeField(label="Duration", required=False)
+    rest_time = MSTimeField(label="Rest Time", required=True)
 
     class Meta:
         model = ExerciseInSegment
-        fields = ['exercise', 'reps', 'duration', 'rest_time', 'notes']
+        fields = ["exercise", "reps", "duration", "rest_time", "notes"]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -125,11 +149,12 @@ class ExerciseInSegmentForm(forms.ModelForm):
         if not reps and not duration:
             raise forms.ValidationError("Either reps or duration must be specified.")
 
+
 class WorkoutSelectionForm(forms.Form):
-    query = forms.CharField(max_length=100, required=False, label='Search for workouts')
+    query = forms.CharField(max_length=100, required=False, label="Search for workouts")
+
 
 class WorkoutInPlanForm(forms.ModelForm):
     class Meta:
         model = WorkoutInPlan
-        fields = ['workout', 'day_of_week']
-
+        fields = ["workout", "day_of_week"]

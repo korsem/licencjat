@@ -7,18 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('you_train_api', '0001_initial'),
+        ("you_train_api", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='workoutplan',
-            name='cycle_length',
-            field=models.PositiveIntegerField(blank=True, help_text='Ile tygodni ma trwać Plan?', null=True),
+            model_name="workoutplan",
+            name="cycle_length",
+            field=models.PositiveIntegerField(
+                blank=True, help_text="Ile tygodni ma trwać Plan?", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='workoutplan',
-            name='start_date',
-            field=models.DateField(default=datetime.datetime(2024, 7, 16, 7, 39, 32, 521093, tzinfo=datetime.timezone.utc), help_text='Data rozpoczęcia planu'),
+            model_name="workoutplan",
+            name="start_date",
+            field=models.DateField(
+                default=datetime.datetime(
+                    2024, 7, 16, 7, 39, 32, 521093, tzinfo=datetime.timezone.utc
+                ),
+                help_text="Data rozpoczęcia planu",
+            ),
         ),
     ]

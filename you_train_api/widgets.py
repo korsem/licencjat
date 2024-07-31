@@ -1,22 +1,24 @@
 from django import forms
 
+
 class HMSTimeWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
         widgets = [
-            forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'h'}),
-            forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'm'}),
-            forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 's'}),
+            forms.NumberInput(attrs={"class": "form-control", "placeholder": "h"}),
+            forms.NumberInput(attrs={"class": "form-control", "placeholder": "m"}),
+            forms.NumberInput(attrs={"class": "form-control", "placeholder": "s"}),
         ]
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
         if value:
-            h, m, s = map(int, value.split(':'))
+            h, m, s = map(int, value.split(":"))
             return [h, m, s]
         return [0, 0, 0]
 
     def format_output(self, rendered_widgets):
-        return ' '.join(rendered_widgets)
+        return " ".join(rendered_widgets)
+
 
 class HMSTimeField(forms.MultiValueField):
     widget = HMSTimeWidget
@@ -38,19 +40,20 @@ class HMSTimeField(forms.MultiValueField):
 class MSTimeWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
         widgets = [
-            forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'm'}),
-            forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 's'}),
+            forms.NumberInput(attrs={"class": "form-control", "placeholder": "m"}),
+            forms.NumberInput(attrs={"class": "form-control", "placeholder": "s"}),
         ]
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
         if value:
-            h, m, s = map(int, value.split(':'))
+            h, m, s = map(int, value.split(":"))
             return [h, m, s]
         return [0, 0, 0]
 
     def format_output(self, rendered_widgets):
-        return ' '.join(rendered_widgets)
+        return " ".join(rendered_widgets)
+
 
 class MSTimeField(forms.MultiValueField):
     widget = MSTimeWidget
@@ -66,4 +69,3 @@ class MSTimeField(forms.MultiValueField):
         if data_list:
             return f"{data_list[0]:02}:{data_list[1]:02}"
         return "00:00"
-
