@@ -2,7 +2,10 @@
 document.getElementById('add-segment').addEventListener('click', function() {
     var segmentFormset = document.getElementById('segment-formset');
     var newForm = segmentFormset.lastElementChild.cloneNode(true);
-    var formIdx = segmentFormset.children.length;
+    var formIdx = segmentFormset.querySelectorAll('.segment-form').length; // !
+    newForm.setAttribute("id", `segment-${formIdx}`);
+    const title = newForm.querySelector("h3");
+    title.replaceChild(document.createTextNode(`Segment ${formIdx + 1}`), title.firstChild);
 
     console.log(`Adding new segment with index ${formIdx}`);
 
@@ -14,7 +17,7 @@ document.getElementById('add-segment').addEventListener('click', function() {
             element.setAttribute('name', updatedName);
         }
         var id = element.getAttribute('id');
-        if (id) {
+        if (id !== null) {
             var updatedId = id.replace(/-\d+-/g, `-${formIdx}-`);
             element.setAttribute('id', updatedId);
         }
@@ -49,9 +52,6 @@ document.getElementById('add-segment').addEventListener('click', function() {
     });
 
     segmentFormset.appendChild(newForm);
-
-    // Log the updated number of segments
-    console.log(`Number of segments: ${segmentFormset.children.length}`);
 });
 
 // Delegates click events for "Add Exercise" buttons to open the exercise modal
