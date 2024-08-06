@@ -41,38 +41,29 @@
                     </div>
                     <h3>Exercises</h3>
                     <div class="exercise-formset" id="exercise-formset-{{ forloop.counter0 }}">
-                        {% if exercise_formsets %}
-                            {% for exercise_formset in exercise_formsets %}
-                                {% if exercise_formset.prefix == "segment_"|add:forloop.counter0|add:"_exercises" %}
-                                    {{ exercise_formset.management_form }}
-                                    <table class="table" id="exercise-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Reps</th>
-                                                <th>Duration (h:m:s)</th>
-                                                <th>Rest Time (m:s)</th>
-                                                <th>Notes</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for exercise_form in exercise_formset %}
-                                            <tr>
-                                                <td>{{ exercise_form.instance.exercise.name }}</td>
-                                                <td>{{ exercise_form.instance.reps }}</td>
-                                                <td>{{ exercise_form.instance.duration }}</td>
-                                                <td>{{ exercise_form.instance.rest_time }}</td>
-                                                <td>{{ exercise_form.instance.notes }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        <ul class="exercise-list" id="exercise-list-{{ forloop.counter0 }}">
-                            <!-- Exercise list items will be added here -->
-                        </ul>
+                    {{ exercise_formset.management_form }}
+                    <table class="table" id="exercise-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Reps</th>
+                                <th>Duration (h:m:s)</th>
+                                <th>Rest Time (m:s)</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                       <tbody id="exercise-table-body-{{ forloop.counter0 }}">
+                        {% for exercise_form in exercise_formsets %}
+                        <tr>
+                            <td>{{ exercise_form.instance.exercise.name }}</td>
+                            <td>{{ exercise_form.instance.reps }}</td>
+                            <td>{{ exercise_form.instance.duration }}</td>
+                            <td>{{ exercise_form.instance.rest_time }}</td>
+                            <td>{{ exercise_form.instance.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                         <button type="button" class="btn btn-secondary add-exercise" data-segment="{{ forloop.counter0 }}">Add Exercise</button>
                         <button type="button" class="btn btn-primary save-segment" data-segment="{{ forloop.counter0 }}">Save Segment</button>
                     </div>

@@ -1,11 +1,34 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the first segment to be empty
+    var initialSegmentIndex = 0;
+    var initialExerciseTableBody = document.querySelector(`#exercise-table-body-${initialSegmentIndex}`);
+    if (initialExerciseTableBody) {
+        initialExerciseTableBody.innerHTML = '';
+    }
+});
+
 // Adds a new segment form when the "Add Segment" button is clicked
 document.getElementById('add-segment').addEventListener('click', function() {
     var segmentFormset = document.getElementById('segment-formset');
     var newForm = segmentFormset.lastElementChild.cloneNode(true);
     var formIdx = segmentFormset.querySelectorAll('.segment-form').length; // !
+
     newForm.setAttribute("id", `segment-${formIdx}`);
     const title = newForm.querySelector("h3");
-    title.replaceChild(document.createTextNode(`Segment ${formIdx + 1}`), title.firstChild);
+    title.replaceChild(document.createTextNode(`Segment ${formIdx + 1}`), title.firstChild); //!
+
+    // aby można była dodawać ćwiczenia do odróżnionych formsetów
+    newForm.setAttribute("id", `segment-${formIdx}`);
+
+    var exerciseTableBody = newForm.querySelector('tbody[id^="exercise-table-body-"]');
+    if (exerciseTableBody) {
+        exerciseTableBody.id = `exercise-table-body-${formIdx}`;
+
+        // Clear the existing rows in the exercise table body to make it empty
+        exerciseTableBody.innerHTML = '';
+    }
+    console.log(exerciseTableBody)
+
 
     console.log(`Adding new segment with index ${formIdx}`);
 
@@ -28,9 +51,6 @@ document.getElementById('add-segment').addEventListener('click', function() {
         button.dataset.segment = formIdx;
     });
 
-    // Clear existing exercise list in the new segment
-    var exerciseList = newForm.querySelector('.exercise-list');
-    exerciseList.innerHTML = '';
 
     // Remove any existing delete button to avoid duplication
     var existingDeleteButton = newForm.querySelector('.delete-segment');
@@ -65,8 +85,6 @@ document.getElementById('segment-formset').addEventListener('click', function(ev
         // Load exercises based on the current query
         loadExercises('');
 
-        console.log(`Number of segments: ${document.getElementById('segment-formset').children.length}`);
-
         // Handle search button click for filtering exercises
         document.getElementById('search-button').onclick = function() {
             var query = document.getElementById('search-query').value;
@@ -94,8 +112,6 @@ document.getElementById('back-to-exercises').addEventListener('click', function(
 // Logs a message when the workout form is submitted
 document.getElementById('workout-form').addEventListener('submit', function(event) {
     console.log('Form is being submitted');
-    // Uncomment to prevent default submission and debug
-    // event.preventDefault();
 });
 
 // Closes the exercise modal when the close button is clicked
@@ -121,10 +137,10 @@ window.onclick = function(event) {
 function saveExerciseDetails(addNext) {
     var reps = document.getElementById('reps').value;
     var duration_h = document.getElementById('duration_0').value;
-    var duration_m = document.getElementById('duration_1').value;
-    var duration_s = document.getElementById('duration_2').value;
-    var rest_time_m = document.getElementById('rest_time_0').value;
-    var rest_time_s = document.getElementById('rest_time_1').value;
+    var duration_m = document.getElementById('duration_1').value || 0;
+    var duration_s = document.getElementById('duration_2').value || 0;
+    var rest_time_m = document.getElementById('rest_time_0').value || 0;
+    var rest_time_s = document.getElementById('rest_time_1').value || 0;
     var notes = document.getElementById('notes').value;
 
     // Validate that either reps or duration is filled
@@ -134,14 +150,39 @@ function saveExerciseDetails(addNext) {
     }
 
     var segmentIndex = document.getElementById('exercise-modal').getAttribute('data-segment');
-
     console.log(`Saving exercise details for segment ${segmentIndex}`);
-    var segmentForm = document.querySelectorAll('.segment-form')[segmentIndex];
-    var exerciseFormset = segmentForm.querySelector('.exercise-formset .exercise-list');
 
-    var newExerciseItem = document.createElement('li');
-    newExerciseItem.textContent = `Exercise ID: ${document.getElementById('selected-exercise-id').value}, Reps: ${reps}, Duration: ${duration_h}:${duration_m}:${duration_s}, Rest Time: ${rest_time_m}:${rest_time_s}, Notes: ${notes}`;
-    exerciseFormset.appendChild(newExerciseItem);
+    var exerciseTableBodyId = `exercise-table-body-${segmentIndex}`;
+    console.log(exerciseTableBodyId)
+    var exerciseTableBody = document.getElementById(exerciseTableBodyId)
+
+    if (!exerciseTableBody) {
+        console.error('Exercise table body not found');
+        return;
+    }
+    if (!exerciseTableBody) {
+        console.error('Exercise table body not found');
+        return;
+    }
+
+    // name zamiast id
+var exerciseIdElement = document.getElementById('selected-exercise-id');
+if (exerciseIdElement) {
+    var exerciseId = exerciseIdElement.value;
+    console.log(`Exercise ID sie poprawnie wyswietyla: ${exerciseId}`);
+} else {
+    console.error('Element with ID "selected-exercise-id" not found');
+}
+
+ var newExerciseRow = document.createElement('tr');
+    newExerciseRow.innerHTML = `
+        <td>${exerciseId}</td>
+        <td>${reps}</td>
+        <td>${duration_h}:${duration_m}:${duration_s}</td>
+        <td>${rest_time_m}:${rest_time_s}</td>
+        <td>${notes}</td>
+    `;
+    exerciseTableBody.appendChild(newExerciseRow);
 
     if (!addNext) {
         document.getElementById('exercise-details-modal').style.display = "none";
