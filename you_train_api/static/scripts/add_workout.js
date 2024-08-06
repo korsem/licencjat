@@ -137,16 +137,30 @@ window.onclick = function(event) {
 function saveExerciseDetails(addNext) {
     var reps = document.getElementById('reps').value;
     var duration_h = document.getElementById('duration_0').value;
-    var duration_m = document.getElementById('duration_1').value || 0;
-    var duration_s = document.getElementById('duration_2').value || 0;
-    var rest_time_m = document.getElementById('rest_time_0').value || 0;
-    var rest_time_s = document.getElementById('rest_time_1').value || 0;
+    var duration_m = document.getElementById('duration_1').value;
+    var duration_s = document.getElementById('duration_2').value;
+    var rest_time_m = document.getElementById('rest_time_0').value || '00';
+    var rest_time_s = document.getElementById('rest_time_1').value || '00';
     var notes = document.getElementById('notes').value;
 
-    // Validate that either reps or duration is filled
-    if (!reps && (!duration_h && !duration_m && !duration_s)) {
-        alert('Either reps or duration must be specified.');
+    // Validate that either reps or duration is filled, but not both
+    if ((reps && (duration_h || duration_m || duration_s)) || (!reps && (!duration_h && !duration_m && !duration_s))) {
+        console.log(`Reps: ${reps}, Duration: ${duration_h}:${duration_m}:${duration_s}`);
+
+        alert('Either reps or duration must be specified, but not both.');
         return;
+    }
+
+    // Set duration fields to '00' if not provided
+    duration_m = duration_m.padStart(2, '0') || '00';
+    duration_s = duration_s.padStart(2, '0') || '00';
+
+    if (!reps) {
+        duration_h = duration_h || '00';
+    } else {
+        duration_h = '';
+        duration_m = '';
+        duration_s = '';
     }
 
     var segmentIndex = document.getElementById('exercise-modal').getAttribute('data-segment');
@@ -165,20 +179,17 @@ function saveExerciseDetails(addNext) {
         return;
     }
 
-    // name zamiast id
+// name zamiast id wykorzystuje
 var exerciseIdElement = document.getElementById('selected-exercise-id');
-if (exerciseIdElement) {
-    var exerciseId = exerciseIdElement.value;
-    console.log(`Exercise ID sie poprawnie wyswietyla: ${exerciseId}`);
-} else {
-    console.error('Element with ID "selected-exercise-id" not found');
-}
+var exerciseName = document.getElementById('exercise-details-title').textContent;
+
+var durationString = reps ? '' : `${duration_h}:${duration_m}:${duration_s}`;
 
  var newExerciseRow = document.createElement('tr');
     newExerciseRow.innerHTML = `
-        <td>${exerciseId}</td>
+        <td>${exerciseName}</td>
         <td>${reps}</td>
-        <td>${duration_h}:${duration_m}:${duration_s}</td>
+        <td>${durationString}</td>
         <td>${rest_time_m}:${rest_time_s}</td>
         <td>${notes}</td>
     `;
@@ -212,7 +223,7 @@ function loadExercises(query) {
                 exerciseItem.textContent = exercise.name;
                 exerciseItem.onclick = function() {
                     document.getElementById('selected-exercise-id').value = exercise.id;
-                    document.getElementById('exercise-details-title').textContent = `${exercise.name} Details`;
+                    document.getElementById('exercise-details-title').textContent = `${exercise.name}`;
                     document.getElementById('exercise-modal').style.display = "none";
                     document.getElementById('exercise-details-modal').style.display = "block";
                 };
