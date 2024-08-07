@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Edit Workout{% endblock %}
+
+{% block content %}
+<h1>Edit Workout in Plan</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div>
+        {{ form.workout.label_tag }} {{ form.workout }}
+    </div>
+    {% if not workout_in_plan.workout_plan.is_cyclic %}
+    <div>
+        {{ form.date.label_tag }} {{ form.date }}
+    </div>
+    {% else %}
+    <div>
+        {{ form.day_of_week.label_tag }} {{ form.day_of_week }}
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+{% endblock %}

@@ -231,3 +231,54 @@ function loadExercises(query) {
             });
         });
 }
+
+// save workout
+document.getElementById('save-workout').addEventListener('click', function(event) {
+    event.preventDefault(); // Zapobiegaj domyślnemu zachowaniu przycisku submit
+
+    var workoutForm = document.getElementById('workout-form');
+    var segmentForms = document.querySelectorAll('.segment-form');
+
+    console.log("segmentForms: ", segmentForms);
+    console.log("workoutForm: ", workoutForm);
+
+    // Przeprowadź walidację pól formularza
+    var isValid = true;
+    var segmentsWithExercises = 0; // Licznik segmentów z ćwiczeniami
+
+    segmentForms.forEach(function(segmentForm) {
+        var restTimeMinutes = segmentForm.querySelector('input[id^="seg_rest_time_"][id$="_0"]').value;
+        var restTimeSeconds = segmentForm.querySelector('input[id^="seg_rest_time_"][id$="_1"]').value;
+        var reps = segmentForm.querySelector('input[name$="reps"]').value;
+        var exerciseRows = segmentForm.querySelectorAll('tbody tr'); // Wiersze z ćwiczeniami w segmencie
+
+        console.log(exerciseRows)
+
+        // Sprawdzaj, czy pola są wypełnione
+        if (!reps) {
+            isValid = false;
+            alert('All required fields must be filled out.');
+            return false; // Zatrzymaj iterację, jeśli znaleziono błąd
+        }
+
+        // Sprawdzaj, czy segment ma ćwiczenia
+        if (exerciseRows.length > 0) {
+            segmentsWithExercises++;
+        }
+
+        // Loguj liczbę ćwiczeń dla każdego segmentu
+        console.log(`Segment ${segmentForm.id} has ${exerciseRows.length} exercises`);
+    });
+
+    // Sprawdź, czy przynajmniej jeden segment ma ćwiczenia
+    if (segmentsWithExercises === 0) {
+        isValid = false;
+        alert('There needs to be at least 1 exercise added to at least one segment.');
+    }
+
+    if (isValid) {
+        console.log('Saving workout unit with number of segments:', segmentForms.length);
+        console.log('Number of segments with exercises:', segmentsWithExercises);
+        workoutForm.submit();
+    }
+});

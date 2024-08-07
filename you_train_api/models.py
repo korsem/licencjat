@@ -133,6 +133,29 @@ class WorkoutInPlan(models.Model):
     day_of_week = models.IntegerField(
         choices=[(i, calendar.day_name[i]) for i in range(7)], blank=True, null=True
     )  # if plan not cyclic then null
+    date = models.DateField(
+        blank=True, null=True
+    )  # Only applicable if plan is not cyclic
+
+    # def clean(self):
+    #     super().clean()
+    #     if self.workout_plan:
+    #         if not self.workout_plan.is_cyclic and not self.date:
+    #             raise ValidationError("Date is required if the workout plan is not cyclic.")
+    #         if self.workout_plan.is_cyclic and self.date:
+    #             raise ValidationError("Date should be null if the workout plan is cyclic.")
+    #         if not self.workout_plan.is_cyclic and self.date:
+    #             if not (
+    #                 self.workout_plan.start_date <= self.date <= self.workout_plan.end_date
+    #             ):
+    #                 raise ValidationError(
+    #                     "Date must be within the workout plan's start and end dates."
+    #                 )
+
+    def __str__(self):
+        if self.workout_plan.is_cyclic:
+            return f"{self.workout_plan} - {calendar.day_name[self.day_of_week]}"
+        return f"{self.workout_plan} - {self.date}"
 
     def __str__(self):
         return f"{self.workout_plan} - {calendar.day_name[self.day - 1]}"

@@ -32,6 +32,7 @@ from you_train_api.models import (
     ExerciseInSegment,
     WorkoutSession,
     WorkoutPlan,
+    WorkoutInPlan,
 )
 
 
@@ -315,7 +316,7 @@ def training_plan_list(request):
 
 @login_required(login_url="/login")
 def add_training_plan(request):
-    print("trainigns: ", TrainingPlan.objects.filter(user=request.user))
+    print("trainings: ", TrainingPlan.objects.filter(user=request.user))
     if request.method == "POST":
         form = TrainingPlanForm(request.POST)
         if form.is_valid():
@@ -372,6 +373,9 @@ def training_plan_detail(request, training_plan_id):
     )
     workout_plan = training_plan.workout_plan
 
+    # Pobierz ćwiczenia przypisane do tego planu treningowego
+    workouts_in_plan = WorkoutInPlan.objects.filter(workout_plan=workout_plan)
+
     if request.method == "POST":
         if "set_active" in request.POST:
             active_plan = (
@@ -382,8 +386,6 @@ def training_plan_detail(request, training_plan_id):
 
             if active_plan:
                 if "confirm" in request.POST:
-                    # w tego ifa nie wchodzi
-                    # deactivating old plan and activating new plan
                     active_plan.is_active = False
                     active_plan.save()
 
@@ -398,10 +400,8 @@ def training_plan_detail(request, training_plan_id):
                         "training_plan_detail", training_plan_id=training_plan_id
                     )
                 else:
-                    # Redirect with confirmation prompt
                     return redirect(f"{request.path}?confirm=true")
             else:
-                # No active plan, activate the new plan
                 training_plan.is_active = True
                 training_plan.save()
                 messages.success(
@@ -412,7 +412,6 @@ def training_plan_detail(request, training_plan_id):
                 )
 
         elif "deactivate" in request.POST:
-            # Deactivate the current plan
             training_plan.is_active = False
             training_plan.save()
             messages.success(
@@ -420,24 +419,31 @@ def training_plan_detail(request, training_plan_id):
             )
             return redirect("training_plan_detail", training_plan_id=training_plan_id)
 
+    # Przekazujemy zakres do szablonu
+    week_days = range(7)
+
     return render(
         request,
         "you_train_api/training_plan_detail.html",
         {
             "training_plan": training_plan,
             "workout_plan": workout_plan,
+            "workouts_in_plan": workouts_in_plan,
             "confirm": "confirm" in request.GET,
+            "week_days": week_days,
         },
     )
 
 
 def workout_list(request):
     workouts = Workout.objects.filter(user=request.user)
+    print(WorkoutSegment.objects.all())
     return render(request, "you_train_api/workout_list.html", {"workouts": workouts})
 
 
 def workout_detail(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
+    print(WorkoutSegment.objects.filter(workout=workout))
     return render(request, "you_train_api/workout_detail.html", {"workout": workout})
 
 
@@ -459,10 +465,15 @@ def add_workout(request):
         segment_formset = WorkoutSegmentFormSet(request.POST, prefix="segments")
 
         if workout_form.is_valid() and segment_formset.is_valid():
-            workout = workout_form.save()
-            segments = segment_formset.save(commit=False)
+            workout = workout_form.save(commit=False)
+            workout.user = request.user
+            workout.save()
 
+            segments = segment_formset.save(commit=False)
+            print("aaaaaaaaa", segments)
+            # segmentów nie zapisuje a workout bez ssgtmentu nioe ma prawa bycia
             for segment in segments:
+                print(segment)
                 segment.workout = workout
                 segment.save()
 
@@ -515,11 +526,14 @@ def add_workouts_to_plan(request, training_plan_id):
     workout_plan = training_plan.workout_plan
 
     if request.method == "POST":
-        form = WorkoutInPlanForm(request.POST)
+        form = WorkoutInPlanForm(request.POST, workout_plan=workout_plan)
         if form.is_valid():
             workout_in_plan = form.save(commit=False)
             workout_in_plan.workout_plan = workout_plan
+            if not workout_plan.is_cyclic:
+                workout_in_plan.day_of_week = None
             workout_in_plan.save()
+            messages.success(request, "Workout added to the plan successfully!")
             if "add_another" in request.POST:
                 return redirect(
                     "add_workouts_to_plan", training_plan_id=training_plan.id
@@ -529,6 +543,8 @@ def add_workouts_to_plan(request, training_plan_id):
         form = WorkoutInPlanForm()
 
     workouts = Workout.objects.filter(user=request.user)
+    existing_workouts_in_plan = WorkoutInPlan.objects.filter(workout_plan=workout_plan)
+
     return render(
         request,
         "you_train_api/add_workouts_to_plan.html",
@@ -537,6 +553,7 @@ def add_workouts_to_plan(request, training_plan_id):
             "workouts": workouts,
             "training_plan": training_plan,
             "workout_plan": workout_plan,
+            "existing_workouts_in_plan": existing_workouts_in_plan,
         },
     )
 
@@ -557,3 +574,30 @@ def delete_training_plan(request, training_plan_id):
 
     # If not a POST request, redirect back to the detail page
     return redirect("training_plan_detail", training_plan_id=training_plan_id)
+
+
+@login_required(login_url="/login")
+def edit_workout_in_plan(request, training_plan_id, workout_in_plan_id):
+    training_plan = get_object_or_404(
+        TrainingPlan, id=training_plan_id, user=request.user
+    )
+    workout_in_plan = get_object_or_404(WorkoutInPlan, id=workout_in_plan_id)
+
+    if request.method == "POST":
+        form = WorkoutInPlanForm(request.POST, instance=workout_in_plan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Workout updated successfully!")
+            return redirect("training_plan_detail", training_plan_id=training_plan.id)
+    else:
+        form = WorkoutInPlanForm(instance=workout_in_plan)
+
+    return render(
+        request,
+        "you_train_api/edit_workout_in_plan.html",
+        {
+            "form": form,
+            "training_plan": training_plan,
+            "workout_in_plan": workout_in_plan,
+        },
+    )

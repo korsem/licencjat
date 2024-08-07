@@ -5,14 +5,20 @@
 {% block content %}
 <h1>Add Workouts to {{ training_plan.title }}</h1>
 
-<form method="post">
+<form id="workout-form" method="post">
     {% csrf_token %}
     <div>
         {{ form.workout.label_tag }} {{ form.workout }}
     </div>
+    {% if not training_plan.workout_plan.is_cyclic %}
+    <div>
+        {{ form.date.label_tag }} {{ form.date }}
+    </div>
+    {% else %}
     <div>
         {{ form.day_of_week.label_tag }} {{ form.day_of_week }}
     </div>
+    {% endif %}
     <button type="submit" class="btn btn-primary">Save</button>
     <button type="submit" name="add_another" class="btn btn-secondary">Save and Add Another</button>
 </form>
@@ -20,7 +26,24 @@
 <h2>Available Workouts</h2>
 <ul>
     {% for workout in workouts %}
-        <li>{{ workout.title }}</li>
+        <li>
+            <a href="{% url 'edit_workout_in_plan' training_plan.id workout.id %}">{{ workout.title }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>Workouts in Plan</h2>
+<ul>
+    {% for workout_in_plan in existing_workouts_in_plan %}
+        <li>
+            {{ workout_in_plan.workout.title }} -
+            {% if workout_in_plan.workout_plan.is_cyclic %}
+                {{ workout_in_plan.get_day_of_week_display }}
+            {% else %}
+                {{ workout_in_plan.date }}
+            {% endif %}
+            (<a href="{% url 'edit_workout_in_plan' training_plan.id workout_in_plan.id %}">Edit</a>)
+        </li>
     {% endfor %}
 </ul>
 

@@ -20,6 +20,7 @@ from .views import (
     exercise_search,
     add_workouts_to_plan,
     delete_training_plan,
+    edit_workout_in_plan,
 )
 
 exercise_patterns = [
@@ -50,6 +51,11 @@ training_plan_patterns = [
         "<int:training_plan_id>/add_workouts/",
         add_workouts_to_plan,
         name="add_workouts_to_plan",
+    ),
+    path(
+        "<int:training_plan_id>/<int:workout_in_plan_id>/",
+        edit_workout_in_plan,
+        name="edit_workout_in_plan",
     ),
     path(
         "<int:training_plan_id>/delete/",

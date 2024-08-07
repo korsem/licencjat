@@ -114,7 +114,7 @@ class WorkoutForm(forms.ModelForm):
 
 
 class WorkoutSegmentForm(forms.ModelForm):
-    rest_time = MSTimeField(label="Rest Time", required=True)
+    rest_time = MSTimeField(label="Rest Time")
     reps = forms.IntegerField(
         label="Ile razy blok ma być powtórzony", required=True, min_value=1, initial=1
     )
@@ -157,4 +157,12 @@ class WorkoutSelectionForm(forms.Form):
 class WorkoutInPlanForm(forms.ModelForm):
     class Meta:
         model = WorkoutInPlan
-        fields = ["workout", "day_of_week"]
+        fields = ["workout", "day_of_week", "date"]
+
+    def __init__(self, *args, **kwargs):
+        workout_plan = kwargs.pop("workout_plan", None)
+        super().__init__(*args, **kwargs)
+        if workout_plan and workout_plan.is_cyclic:
+            self.fields["date"].widget = forms.HiddenInput()
+        elif workout_plan and not workout_plan.is_cyclic:
+            self.fields["day_of_week"].widget = forms.HiddenInput()
