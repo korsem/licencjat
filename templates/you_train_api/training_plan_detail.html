@@ -32,33 +32,54 @@
 </form>
 {% endif %}
 
+<!-- Delete Plan Button -->
 <form method="post" action="{% url 'delete_training_plan' training_plan.id %}" style="display:inline;" onsubmit="return confirmDelete();">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Delete Plan</button>
 </form>
 
 <a href="{% url 'training_plan_list' %}" class="btn btn-secondary mt-4">Back to Training Plans</a>
+<a href="{% url 'add_workouts_to_plan' training_plan.id %}" class="btn btn-success mt-4">Add/Edit Workouts</a>
 
-<h2>Exercises</h2>
 {% if workout_plan.is_cyclic %}
-    <h3>Week Schedule</h3>
-    {% for i in week_days %}
-        <h4>{{ i|date:"l" }}</h4>
-        <ul>
-        {% for workout_in_plan in workouts_in_plan %}
-            {% if workout_in_plan.day_of_week == i %}
-                <li>{{ workout_in_plan.workout.title }}</li>
-            {% endif %}
+<h2>Workouts Schedule</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Day of Week</th>
+            <th>Workouts</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in week_days %}
+        <tr>
+            <td>{{ day }}</td>
+            <td>
+                <ul>
+                {% for workout_in_plan in existing_workouts_in_plan %}
+                    {% if workout_in_plan.get_day_of_week_display == day %}
+                        <li>
+                            {{ workout_in_plan.workout.title }}
+                            (<a href="{% url 'edit_workout_in_plan' training_plan.id workout_in_plan.id %}">Edit</a>)
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+            </td>
+        </tr>
         {% endfor %}
-        </ul>
-    {% endfor %}
+    </tbody>
+</table>
 {% else %}
-    <h3>Daily Schedule</h3>
-    <ul>
-    {% for workout_in_plan in workouts_in_plan %}
-        <li>{{ workout_in_plan.date }} - {{ workout_in_plan.workout.title }}</li>
+<h2>Workouts in Plan</h2>
+<ul>
+    {% for workout_in_plan in existing_workouts_in_plan %}
+        <li>
+            {{ workout_in_plan.date }} - {{ workout_in_plan.workout.title }}
+            (<a href="{% url 'edit_workout_in_plan' training_plan.id workout_in_plan.id %}">Edit</a>)
+        </li>
     {% endfor %}
-    </ul>
+</ul>
 {% endif %}
 
 <script>

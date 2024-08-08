@@ -3,11 +3,12 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
 import calendar
 from django.contrib import messages
+from django.utils.translation import gettext as _
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import (
@@ -373,9 +374,6 @@ def training_plan_detail(request, training_plan_id):
     )
     workout_plan = training_plan.workout_plan
 
-    # Pobierz ćwiczenia przypisane do tego planu treningowego
-    workouts_in_plan = WorkoutInPlan.objects.filter(workout_plan=workout_plan)
-
     if request.method == "POST":
         if "set_active" in request.POST:
             active_plan = (
@@ -419,8 +417,16 @@ def training_plan_detail(request, training_plan_id):
             )
             return redirect("training_plan_detail", training_plan_id=training_plan_id)
 
-    # Przekazujemy zakres do szablonu
-    week_days = range(7)
+    existing_workouts_in_plan = WorkoutInPlan.objects.filter(workout_plan=workout_plan)
+    week_days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
 
     return render(
         request,
@@ -428,9 +434,9 @@ def training_plan_detail(request, training_plan_id):
         {
             "training_plan": training_plan,
             "workout_plan": workout_plan,
-            "workouts_in_plan": workouts_in_plan,
-            "confirm": "confirm" in request.GET,
+            "existing_workouts_in_plan": existing_workouts_in_plan,
             "week_days": week_days,
+            "confirm": "confirm" in request.GET,
         },
     )
 
@@ -540,10 +546,19 @@ def add_workouts_to_plan(request, training_plan_id):
                 )
             return redirect("training_plan_detail", training_plan_id=training_plan.id)
     else:
-        form = WorkoutInPlanForm()
+        form = WorkoutInPlanForm(workout_plan=workout_plan)
 
     workouts = Workout.objects.filter(user=request.user)
     existing_workouts_in_plan = WorkoutInPlan.objects.filter(workout_plan=workout_plan)
+    week_days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
 
     return render(
         request,
@@ -554,6 +569,7 @@ def add_workouts_to_plan(request, training_plan_id):
             "training_plan": training_plan,
             "workout_plan": workout_plan,
             "existing_workouts_in_plan": existing_workouts_in_plan,
+            "week_days": week_days,
         },
     )
 

@@ -11,8 +11,8 @@ from you_train_api.choices import MUSCLE_GROUP_CHOICES
 
 class Equipment(models.Model):
     """
-    ciężar do sprzętu, może po prostu zrobić nazwe choices i dodać do Exercise
-    umożliwiłoby to wyszukiwanie treningów i ćwiczeń po sprzęcie i dodawanie sprzętów posiadanych przez użytkownika
+    Model określa dostępny dla użytkownika sprzęt sportowy,
+    który następnie może łączyć ze znanymi ćwiczeniami
     """
 
     name = models.CharField(max_length=100)
@@ -28,7 +28,7 @@ class Equipment(models.Model):
 
 class Exercise(models.Model):
     """
-    user musi mięc możliwość dodania własnych ćwiczeń i zarządzania nimi, filtrowania itp
+    Ćwiczenie w bazie - przykładowo pompki lub pływanie
     """
 
     name = models.CharField(max_length=100)
@@ -57,7 +57,7 @@ class Exercise(models.Model):
 
 class TrainingPlan(models.Model):
     """
-    Plan treningowy ogólnie
+    Podsatawowe parametry określające plan treningowy
     """
 
     title = models.CharField(max_length=100)
@@ -81,9 +81,8 @@ class TrainingPlan(models.Model):
 
 class WorkoutPlan(models.Model):
     """
-    Określa czy plan treningowy przebiega cyklicznie, jeśli tak to jak często (cyklicznie - poki co po tygodniu)
-    Jeśli nie cyklicznie to dany dzień jest pustą karta i customowo możn sobie ją wypełnić.
-    TrainingPlan nie może istnieć bez workoutplan a WorkoutPlan bez training plan, sa OneToOne
+    Model określa w jaki sposób ma być wykonywany dany plan treningowy.
+    Jest w reklacji OneToOne z planem treningowym.
     """
 
     training_plan = models.OneToOneField(
@@ -94,10 +93,10 @@ class WorkoutPlan(models.Model):
     )
     end_date = models.DateField(
         null=True, blank=True, help_text="Data zakończenia planu"
-    )  #  "do momentu aż wyłącze", ale tyo chyba przy planie cyklicznym
+    )  # dla cyklicznego nie musi istnieć
     is_cyclic = models.BooleanField(
         default=False, help_text="Czy powtarza się co tydzień?"
-    )  # if true cycle_number is required
+    )  # if true cycle_length is required
     cycle_length = models.PositiveIntegerField(
         null=True, blank=True, help_text="Ile tygodni ma trwać Plan?"
     )
@@ -125,7 +124,8 @@ class WorkoutPlan(models.Model):
 
 class WorkoutInPlan(models.Model):
     """
-    Karta treningowa w planie treningowym, z ćwiczeniami, do danego dnia, do danego planu treningowego
+    Model "through" dla relacji ManyToMany modeli Workout i WorkoutPlan.
+    Określa dzień danego ćwiczenia w planie.
     """
 
     workout = models.ForeignKey("Workout", on_delete=models.CASCADE)
@@ -137,33 +137,13 @@ class WorkoutInPlan(models.Model):
         blank=True, null=True
     )  # Only applicable if plan is not cyclic
 
-    # def clean(self):
-    #     super().clean()
-    #     if self.workout_plan:
-    #         if not self.workout_plan.is_cyclic and not self.date:
-    #             raise ValidationError("Date is required if the workout plan is not cyclic.")
-    #         if self.workout_plan.is_cyclic and self.date:
-    #             raise ValidationError("Date should be null if the workout plan is cyclic.")
-    #         if not self.workout_plan.is_cyclic and self.date:
-    #             if not (
-    #                 self.workout_plan.start_date <= self.date <= self.workout_plan.end_date
-    #             ):
-    #                 raise ValidationError(
-    #                     "Date must be within the workout plan's start and end dates."
-    #                 )
-
     def __str__(self):
-        if self.workout_plan.is_cyclic:
-            return f"{self.workout_plan} - {calendar.day_name[self.day_of_week]}"
-        return f"{self.workout_plan} - {self.date}"
-
-    def __str__(self):
-        return f"{self.workout_plan} - {calendar.day_name[self.day - 1]}"
+        return f"{self.workout_plan} - {self.workout} - {self.id}"
 
 
 class Workout(models.Model):
     """
-    Karta treningowa, z ćwiczeniami, do danego dnia, do danego planu treningowego, jako dict
+    Podstawowe parametry Workout
     """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -191,7 +171,7 @@ class WorkoutSession(models.Model):
     )
     workout = models.ForeignKey(
         Workout, related_name="sessions", on_delete=models.CASCADE
-    )
+    )  # zmienić na workout in plan
     # goal = models.CharField(max_length=100, blank=True) idk czy potrzebne
 
     def __str__(self):
@@ -200,8 +180,8 @@ class WorkoutSession(models.Model):
 
 class WorkoutSegment(models.Model):
     """
-    blok treningowy. Jeden blok, a wiele ćwiczeń - siłownia obwodowa,
-    to w jaki sposób dane ćwiczenie jest robione opisuje model ExerciseInSegment
+    Model określa blok treningowy. Dany workout składa się z conajmniej jednego bloku treningowego.
+    np jeden blok, a wiele ćwiczeń - siłownia obwodowa,
     """
 
     workout = models.ForeignKey(
@@ -218,7 +198,8 @@ class WorkoutSegment(models.Model):
 
 class ExerciseInSegment(models.Model):
     """
-    ćwiczenie w bloku treningowym, z opisem jak ma być wykonane
+    Model "through" relacji ManyToMany Exercise i WorkoutSegment.
+    Określa w jaki sposób ćwiczenie jest wykonywane w danym bloku treningowym.
     """
 
     workout_segment = models.ForeignKey(WorkoutSegment, on_delete=models.CASCADE)

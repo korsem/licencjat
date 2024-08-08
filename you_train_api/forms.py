@@ -158,6 +158,7 @@ class WorkoutInPlanForm(forms.ModelForm):
     class Meta:
         model = WorkoutInPlan
         fields = ["workout", "day_of_week", "date"]
+        widgets = {"date": forms.DateInput(attrs={"type": "date"})}
 
     def __init__(self, *args, **kwargs):
         workout_plan = kwargs.pop("workout_plan", None)

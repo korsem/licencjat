@@ -27,24 +27,49 @@
 <ul>
     {% for workout in workouts %}
         <li>
-            <a href="{% url 'edit_workout_in_plan' training_plan.id workout.id %}">{{ workout.title }}</a>
+            <a href="{% url 'workout_detail' workout.id %}">{{ workout.title }}</a>
         </li>
     {% endfor %}
 </ul>
 
 <h2>Workouts in Plan</h2>
-<ul>
+{% if training_plan.workout_plan.is_cyclic %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Day of Week</th>
+                <th>Workouts</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for day in week_days %}
+            <tr>
+                <td>{{ day }}</td>
+                <td>
+                    <ul>
+                    {% for workout_in_plan in existing_workouts_in_plan %}
+                        {% if workout_in_plan.get_day_of_week_display == day %}
+                            <li>
+                                {{ workout_in_plan.workout.title }}
+                                (<a href="{% url 'edit_workout_in_plan' training_plan.id workout_in_plan.id %}">Edit</a>)
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <ul>
     {% for workout_in_plan in existing_workouts_in_plan %}
         <li>
-            {{ workout_in_plan.workout.title }} -
-            {% if workout_in_plan.workout_plan.is_cyclic %}
-                {{ workout_in_plan.get_day_of_week_display }}
-            {% else %}
-                {{ workout_in_plan.date }}
-            {% endif %}
+            {{ workout_in_plan.date }} - {{ workout_in_plan.workout.title }}
             (<a href="{% url 'edit_workout_in_plan' training_plan.id workout_in_plan.id %}">Edit</a>)
         </li>
     {% endfor %}
-</ul>
+    </ul>
+{% endif %}
 
 {% endblock %}
