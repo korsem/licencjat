@@ -337,7 +337,6 @@ def training_plan_list(request):
 
 @login_required(login_url="/login")
 def add_training_plan(request):
-    print("trainings: ", TrainingPlan.objects.filter(user=request.user))
     if request.method == "POST":
         form = TrainingPlanForm(request.POST)
         if form.is_valid():
@@ -355,8 +354,6 @@ def add_workout_plan(request, training_plan_id):
     training_plan = get_object_or_404(
         TrainingPlan, id=training_plan_id, user=request.user
     )
-    print("training_plan: ", training_plan)
-    print("wortkout plans", WorkoutPlan.objects.all())
 
     if request.method == "POST":
         form = WorkoutPlanForm(request.POST)
@@ -400,34 +397,23 @@ def training_plan_detail(request, training_plan_id):
                 TrainingPlan.objects.filter(user=request.user, is_active=True)
                 .exclude(id=training_plan_id)
                 .first()
-            )
+            ) # huh?
 
             if active_plan:
-                if "confirm" in request.POST:
-                    active_plan.is_active = False
-                    active_plan.save()
+                print("tu nie wchodzi")
+                active_plan.is_active = False
+                active_plan.save()
 
-                    training_plan.is_active = True
-                    training_plan.save()
+            training_plan.is_active = True
+            training_plan.save()
 
-                    messages.success(
-                        request,
-                        f"The plan '{training_plan.title}' is now active. '{active_plan.title}' has been deactivated.",
-                    )
-                    return redirect(
-                        "training_plan_detail", training_plan_id=training_plan_id
-                    )
-                else:
-                    return redirect(f"{request.path}?confirm=true")
-            else:
-                training_plan.is_active = True
-                training_plan.save()
-                messages.success(
-                    request, f"The plan '{training_plan.title}' is now active."
-                )
-                return redirect(
-                    "training_plan_detail", training_plan_id=training_plan_id
-                )
+            messages.success(
+                request,
+                f"The plan '{training_plan.title}' is now active.",
+            )
+            return redirect(
+                "training_plan_detail", training_plan_id=training_plan_id
+            )
 
         elif "deactivate" in request.POST:
             training_plan.is_active = False
@@ -482,6 +468,7 @@ def add_workout(request):
         WorkoutSegment,
         ExerciseInSegment,
         form=ExerciseInSegmentForm,
+        formset=WorkoutSegmentForm,
         extra=1,
         can_delete=True,
     )

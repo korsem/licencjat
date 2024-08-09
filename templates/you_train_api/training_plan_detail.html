@@ -89,11 +89,7 @@
     }
 
     function confirmActivation() {
-        {% if confirm %}
-            return confirm('There is already an active plan. Setting this plan as active will deactivate the current active plan. Are you sure you want to proceed?');
-        {% else %}
-            return true;
-        {% endif %}
+        return confirm('Are you sure you want to deactivate any other active plan and set this plan as active?');
     }
 
     function confirmDeactivation() {
