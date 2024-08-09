@@ -20,6 +20,10 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.lib.pagesizes import A4
 
+from you_train_api.calendar_methods import (
+    create_workout_sessions,
+    get_active_workout_plan_for_user,
+)
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import (
     RegisterForm,
@@ -65,10 +69,16 @@ def home(request):
         month = current_month
 
     # Fetch workout sessions for the selected month
-    sessions = WorkoutSession.objects.filter(date__year=year, date__month=month)
+    sessions = WorkoutSession.objects.filter(
+        date__year=year,
+        date__month=month,
+        workout_plan=get_active_workout_plan_for_user(request.user),
+    )
+
+    print("sessions: ", sessions)
 
     # Create a calendar instance and format the month
-    cal = calendar.Calendar(firstweekday=6)  # Week starts on Sunday (default)
+    cal = calendar.Calendar()  # Week starts on Sunday (default)
     month_days = cal.monthdayscalendar(year, month)
 
     # Build a dictionary of workout sessions by day
@@ -92,7 +102,9 @@ def home(request):
             if day == 0:
                 html_calendar += "<td></td>"
             else:
-                label = "trening" if day in workout_days else ""
+                label = (
+                    "trening" if day in workout_days else ""
+                )  # nazwy trzeba z tego wyciągnąć
                 html_calendar += f'<td class="{day_class}">{day}<br>{label}</td>'
         html_calendar += "</tr>"
 
@@ -550,6 +562,10 @@ def add_workouts_to_plan(request, training_plan_id):
                 workout_in_plan.day_of_week = None
             workout_in_plan.save()
             messages.success(request, "Workout added to the plan successfully!")
+
+            # creating workout sessions
+            create_workout_sessions(workout_in_plan)
+
             if "add_another" in request.POST:
                 return redirect(
                     "add_workouts_to_plan", training_plan_id=training_plan.id
