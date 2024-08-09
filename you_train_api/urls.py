@@ -21,6 +21,7 @@ from .views import (
     add_workouts_to_plan,
     delete_training_plan,
     edit_workout_in_plan,
+    generate_training_plan_pdf,
 )
 
 exercise_patterns = [
@@ -61,6 +62,11 @@ training_plan_patterns = [
         "<int:training_plan_id>/delete/",
         delete_training_plan,
         name="delete_training_plan",
+    ),
+    path(
+        "<int:training_plan_id>/generate_pdf/",
+        generate_training_plan_pdf,
+        name="generate_pdf",
     ),
 ]
 

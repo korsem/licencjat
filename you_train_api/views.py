@@ -1,3 +1,5 @@
+import datetime
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -8,7 +10,15 @@ from django.forms import inlineformset_factory
 from django.http import JsonResponse
 import calendar
 from django.contrib import messages
+from django.http import HttpResponse
 from django.utils.translation import gettext as _
+
+import io
+from django.http import FileResponse
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.pagesizes import A4
 
 from you_train_api.choices import MUSCLE_GROUP_CHOICES
 from you_train_api.forms import (
@@ -617,3 +627,102 @@ def edit_workout_in_plan(request, training_plan_id, workout_in_plan_id):
             "workout_in_plan": workout_in_plan,
         },
     )
+
+
+@login_required(login_url="/login")
+def generate_training_plan_pdf(request, training_plan_id):
+    training_plan = get_object_or_404(
+        TrainingPlan, id=training_plan_id, user=request.user
+    )
+    workout_plan = training_plan.workout_plan
+    workouts_in_plan = WorkoutInPlan.objects.filter(workout_plan=workout_plan)
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="{training_plan.title}.pdf"'
+    )
+
+    # tworzenie pdf-a
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    # Rejestrowanie czcionki obsługującej polskie znaki
+    # pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
+    # p.setFont('DejaVuSans', 12)
+
+    # tytuł i data
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(100, height - 100, f"Plan treningowy: {training_plan.title}")
+    p.setFont("Helvetica", 12)
+    p.drawString(100, height - 130, f"Data rozpoczęcia: {workout_plan.start_date}")
+    if not workout_plan.is_cyclic:
+        p.drawString(100, height - 150, f"Data zakończenia: {workout_plan.end_date}")
+
+    # opis i cel jeśli są dostępne
+    y_position = height - 180
+    if training_plan.description:
+        p.drawString(100, y_position, f"Opis: {training_plan.description}")
+        y_position -= 20
+    if training_plan.goal:
+        p.drawString(100, y_position, f"Cel: {training_plan.goal}")
+        y_position -= 20
+
+    # Lista dni tygodnia i odpowiadające im treningi lub daty i treningi
+    if workout_plan.is_cyclic:
+        p.drawString(100, y_position, "Plan cykliczny:")
+        y_position -= 20
+        for i in range(7):
+            day_name = calendar.day_name[i]
+            p.drawString(120, y_position, f"{day_name}:")
+            workouts = [
+                wi.workout.title for wi in workouts_in_plan if wi.day_of_week == i
+            ]
+            if workouts:
+                p.drawString(200, y_position, ", ".join(workouts))
+            else:
+                p.drawString(200, y_position, "Brak treningów")
+            y_position -= 20
+    else:
+        p.drawString(100, y_position, "Plan niecykliczny:")
+        y_position -= 20
+        for workout_in_plan in workouts_in_plan:
+            p.drawString(
+                120,
+                y_position,
+                f"{workout_in_plan.date}: {workout_in_plan.workout.title}",
+            )
+            y_position -= 20
+
+    # podsumowanie ilościowe
+    y_position -= 20
+    p.drawString(
+        100, y_position, f"Ilość treningów w planie: {workouts_in_plan.count()}"
+    )
+
+    workout_counts = {}
+    for workout_in_plan in workouts_in_plan:
+        title = workout_in_plan.workout.title
+        workout_counts[title] = workout_counts.get(title, 0) + 1
+
+    y_position -= 20
+    p.drawString(100, y_position, "Podsumowanie typów treningów:")
+    y_position -= 20
+    for title, count in workout_counts.items():
+        p.drawString(120, y_position, f"{title}: {count} razy")
+        y_position -= 20
+
+    # Data wygenerowania PDF-a
+    p.setFont("Helvetica", 10)
+    p.drawString(
+        100,
+        y_position - 20,
+        f"Wygenerowano: {datetime.date.today().strftime('%Y-%m-%d')}",
+    )
+
+    p.showPage()
+    p.save()
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response

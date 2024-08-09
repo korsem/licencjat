@@ -40,6 +40,7 @@
 
 <a href="{% url 'training_plan_list' %}" class="btn btn-secondary mt-4">Back to Training Plans</a>
 <a href="{% url 'add_workouts_to_plan' training_plan.id %}" class="btn btn-success mt-4">Add/Edit Workouts</a>
+    <a href="{% url 'generate_pdf' training_plan.id %}" class="btn btn-info mt-4">Generate PDF</a>
 
 {% if workout_plan.is_cyclic %}
 <h2>Workouts Schedule</h2>
