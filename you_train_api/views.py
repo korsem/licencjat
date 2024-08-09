@@ -1,4 +1,5 @@
 import datetime
+from collections import defaultdict
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -68,21 +69,20 @@ def home(request):
         year = current_year
         month = current_month
 
-    # Fetch workout sessions for the selected month
+    # workout sessions for the selected month
     sessions = WorkoutSession.objects.filter(
         date__year=year,
         date__month=month,
         workout_plan=get_active_workout_plan_for_user(request.user),
     )
 
-    print("sessions: ", sessions)
-
-    # Create a calendar instance and format the month
     cal = calendar.Calendar()  # Week starts on Sunday (default)
     month_days = cal.monthdayscalendar(year, month)
 
-    # Build a dictionary of workout sessions by day
-    workout_days = {session.date.day for session in sessions}
+    # a dictionary of workout sessions by day
+    workout_days = defaultdict(list)
+    for session in sessions:
+        workout_days[session.date.day].append(session.workout.title)
 
     # Generate HTML for the calendar
     html_calendar = '<table class="calendar"><thead><tr>'
@@ -102,9 +102,7 @@ def home(request):
             if day == 0:
                 html_calendar += "<td></td>"
             else:
-                label = (
-                    "trening" if day in workout_days else ""
-                )  # nazwy trzeba z tego wyciągnąć
+                label = "<br>".join(workout_days[day]) if day in workout_days else ""
                 html_calendar += f'<td class="{day_class}">{day}<br>{label}</td>'
         html_calendar += "</tr>"
 
