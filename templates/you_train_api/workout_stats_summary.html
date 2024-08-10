@@ -1,0 +1,45 @@
+{% extends 'main/base.html' %}
+{% block title %}Workout Stats Summary{% endblock %}
+
+{% block content %}
+<h1>Workout Stats Summary</h1>
+
+{% if workout_stats %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Session Date</th>
+                <th>Description</th>
+                <th>Distance (km)</th>
+                <th>Duration</th>
+                <th>Avg Heart Rate</th>
+                <th>Max Heart Rate</th>
+                <th>Satisfaction</th>
+                <th>Well Being</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stats in workout_stats %}
+            <tr>
+                <td>{{ stats.workout_session.date }}</td>
+                <td>{{ stats.description }}</td>
+                <td>{{ stats.distance }}</td>
+                <td>{{ stats.duration }}</td>
+                <td>{{ stats.avg_heart_rate }}</td>
+                <td>{{ stats.max_heart_rate }}</td>
+                <td>{{ stats.satisfaction }}</td>
+                <td>{{ stats.well_being }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No workout statistics available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No workout statistics available.</p>
+{% endif %}
+
+<a href="{% url 'home' %}" class="btn btn-secondary mt-3">Back to Home</a>
+{% endblock %}

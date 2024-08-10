@@ -813,3 +813,23 @@ def workout_stats_detail(request, session_id):
         "stats": stats,
     }
     return render(request, "you_train_api/workout_stats_detail.html", context)
+
+
+@login_required(login_url="/login")
+def active_plan_detail(request):
+    active_plan = TrainingPlan.objects.filter(user=request.user, is_active=True).first()
+    if active_plan:
+        return redirect("training_plan_detail", training_plan_id=active_plan.id)
+    return render(request, "you_train_api/active_plan_detail.html")
+
+
+@login_required(login_url="/login")
+def workout_stats_summary(request):
+    workout_stats = WorkoutStats.objects.filter(
+        workout_session__workout__user=request.user
+    )
+    return render(
+        request,
+        "you_train_api/workout_stats_summary.html",
+        {"workout_stats": workout_stats},
+    )

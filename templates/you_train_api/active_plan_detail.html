@@ -1,0 +1,14 @@
+{% extends 'main/base.html' %}
+{% block title %}Active Plan Detail{% endblock %}
+
+{% block content %}
+<h1>Active Training Plan</h1>
+
+{% if active_plan %}
+    <p>Your active training plan is: <a href="{% url 'training_plan_detail' training_plan_id=active_plan.id %}">{{ active_plan.title }}</a></p>
+{% else %}
+    <p>You do not have an active training plan.</p>
+{% endif %}
+
+<a href="{% url 'home' %}" class="btn btn-secondary mt-3">Back to Home</a>
+{% endblock %}
