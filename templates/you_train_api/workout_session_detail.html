@@ -1,0 +1,50 @@
+{% extends 'main/base.html' %}
+{% block title %}Workout Session Detail{% endblock %}
+
+{% block content %}
+<h1>{{ workout.title }}</h1>
+<p><strong>Opis sesji:</strong> {{ session.description }}</p>
+<p><strong>Data sesji:</strong> {{ session.date }}</p>
+<p><strong>Plan treningowy:</strong> {{ session.workout_plan.title }}</p>
+<p><strong>Trening ukończony:</strong> {{ session.is_completed|yesno:"Tak,Nie" }}</p>
+
+<h2>Szczegóły Treningu</h2>
+<p><strong>Opis treningu:</strong> {{ workout.description }}</p>
+<p><strong>Dzień tygodnia:</strong> {{ workout.get_day_of_week_display }}</p>
+
+<h3>Segmenty Treningu</h3>
+<ul>
+    {% for segment in workout.segments.all %}
+    <li>
+        <h4>Segment {{ segment.id }}</h4>
+        <p><strong>Powtórzenia:</strong> {{ segment.reps }}</p>
+        <p><strong>Czas odpoczynku:</strong> {{ segment.rest_time }}</p>
+        <p><strong>Notatki:</strong> {{ segment.notes }}</p>
+
+        <h5>Ćwiczenia</h5>
+        <ul>
+            {% for exercise in segment.exercises.all %}
+            <li>
+                <p><strong>Ćwiczenie:</strong> {{ exercise.name }}</p>
+                <p><strong>Powtórzenia:</strong> {{ exercise.exerciseinsegment.reps }}</p>
+                <p><strong>Czas trwania:</strong> {{ exercise.exerciseinsegment.duration }}</p>
+                <p><strong>Czas odpoczynku:</strong> {{ exercise.exerciseinsegment.rest_time }}</p>
+                <p><strong>Notatki:</strong> {{ exercise.exerciseinsegment.notes }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+
+{% if can_edit %}
+<h2>Edytuj sesję treningową</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+</form>
+{% endif %}
+
+<a href="{% url 'home' %}" class="btn btn-secondary mt-3">Powrót do kalendarza</a>
+{% endblock %}

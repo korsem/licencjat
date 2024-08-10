@@ -33,4 +33,16 @@
     <li>No segments found.</li>
     {% endfor %}
 </ul>
+
+<!-- Delete Plan Button -->
+<form method="post" action="{% url 'delete_workout' workout.id %}" style="display:inline;" onsubmit="return confirmDelete();">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Delete Workout</button>
+</form>
 {% endblock %}
+
+<script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete the workout "{{ workout.title }}"? This action cannot be undone.');
+    }
+</script>

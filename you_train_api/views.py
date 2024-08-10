@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -38,6 +39,7 @@ from you_train_api.forms import (
     ExerciseInSegmentForm,
     WorkoutSegmentForm,
     WorkoutInPlanForm,
+    WorkoutSessionForm,
 )
 from you_train_api.models import (
     Exercise,
@@ -76,13 +78,15 @@ def home(request):
         workout_plan=get_active_workout_plan_for_user(request.user),
     )
 
-    cal = calendar.Calendar()  # Week starts on Sunday (default)
+    today_sessions = sessions.filter(date=now.date())
+
+    cal = calendar.Calendar()
     month_days = cal.monthdayscalendar(year, month)
 
     # a dictionary of workout sessions by day
     workout_days = defaultdict(list)
     for session in sessions:
-        workout_days[session.date.day].append(session.workout.title)
+        workout_days[session.date.day].append(session)
 
     # Generate HTML for the calendar
     html_calendar = '<table class="calendar"><thead><tr>'
@@ -94,15 +98,19 @@ def home(request):
         html_calendar += "<tr>"
         for i, day in enumerate(week):
             day_class = ""
-            if i == 6:  # Sunday
+            if i > 4:
                 day_class = "weekend"
-            elif i == 5:  # Saturday
-                day_class = "weekend"
-
             if day == 0:
                 html_calendar += "<td></td>"
             else:
-                label = "<br>".join(workout_days[day]) if day in workout_days else ""
+                sessions_for_day = workout_days.get(day, [])
+                labels = [
+                    f'<a href="{reverse("session_detail", args=[session.id])}" '
+                    f'class="{"past-session" if session.date <= now.date() else ""}">'
+                    f"{session.workout.title}</a>"
+                    for session in sessions_for_day
+                ]
+                label = "<br>".join(labels)
                 html_calendar += f'<td class="{day_class}">{day}<br>{label}</td>'
         html_calendar += "</tr>"
 
@@ -129,6 +137,7 @@ def home(request):
         "prev_year": prev_year,
         "next_month": next_month,
         "next_year": next_year,
+        "today_sessions": today_sessions,
     }
 
     return render(request, "main/home.html", context)
@@ -397,7 +406,7 @@ def training_plan_detail(request, training_plan_id):
                 TrainingPlan.objects.filter(user=request.user, is_active=True)
                 .exclude(id=training_plan_id)
                 .first()
-            ) # huh?
+            )  # huh?
 
             if active_plan:
                 print("tu nie wchodzi")
@@ -411,9 +420,7 @@ def training_plan_detail(request, training_plan_id):
                 request,
                 f"The plan '{training_plan.title}' is now active.",
             )
-            return redirect(
-                "training_plan_detail", training_plan_id=training_plan_id
-            )
+            return redirect("training_plan_detail", training_plan_id=training_plan_id)
 
         elif "deactivate" in request.POST:
             training_plan.is_active = False
@@ -457,6 +464,18 @@ def workout_detail(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
     print(WorkoutSegment.objects.filter(workout=workout))
     return render(request, "you_train_api/workout_detail.html", {"workout": workout})
+
+
+def workout_delete(request, workout_id):
+    workout = get_object_or_404(Workout, id=workout_id)
+
+    if request.method == "POST":
+        workout.delete()
+        return redirect("workout_list")
+
+    return render(
+        request, "you_train_api/workout_confirm_delete.html", {"workout": workout}
+    )
 
 
 @login_required(login_url="/login")
@@ -592,14 +611,10 @@ def delete_training_plan(request, training_plan_id):
     )
 
     if request.method == "POST":
-        # Delete the associated WorkoutPlan, if exists
         if hasattr(training_plan, "workout_plan"):
             training_plan.workout_plan.delete()
-        # Delete the TrainingPlan itself
         training_plan.delete()
         return redirect("training_plan_list")
-
-    # If not a POST request, redirect back to the detail page
     return redirect("training_plan_detail", training_plan_id=training_plan_id)
 
 
@@ -727,3 +742,29 @@ def generate_training_plan_pdf(request, training_plan_id):
     buffer.close()
     response.write(pdf)
     return response
+
+
+@login_required(login_url="/login")
+def workout_session_detail(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id)
+    workout = session.workout
+    today = timezone.now().date()
+
+    # Check if the session can be edited (date is today or in the past)
+    can_edit = session.date <= today
+
+    if request.method == "POST" and can_edit:
+        form = WorkoutSessionForm(request.POST, instance=session)
+        if form.is_valid():
+            form.save()
+            return redirect("session_detail", session_id=session.id)
+    else:
+        form = WorkoutSessionForm(instance=session)
+
+    context = {
+        "session": session,
+        "workout": workout,
+        "can_edit": can_edit,
+        "form": form,
+    }
+    return render(request, "you_train_api/workout_session_detail.html", context)

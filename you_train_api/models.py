@@ -157,7 +157,7 @@ class Workout(models.Model):
 
 class WorkoutSession(models.Model):
     """
-    "Realny" Trening na dany dzień, do kalendarza, ne istnieje bez WorkoutPlan,
+    "Realny" Trening na dany dzień, do kalendarza, nie istnieje bez WorkoutPlan,
      workout moze miec kilka workout sessions, workoutsessin nie isnieje bez workout, workout moze byc bez workout session
     """
 

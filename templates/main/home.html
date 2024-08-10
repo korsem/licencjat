@@ -4,8 +4,24 @@
 
 {% block content %}
 <h1>Witaj, {{ user.username }}!</h1>
+
+{% if today_sessions %}
+<h2>Dzisiaj w planie:</h2>
+<ul>
+    {% for session in today_sessions %}
+    <li>
+        <a href="{% url 'workout_detail' session.workout.id %}">
+            {{ session.workout.title }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+<hr class="divider">
+{% endif %}
+
 <h2>Treningi na miesiąc {{ month }} {{ year }}</h2>
 <hr class="divider">
+
 <div class="calendar-container">
     <a href="?year={{ prev_year }}&month={{ prev_month }}" class="nav-button prev-month">&#9664;</a>
     <div class="calendar">

@@ -12,6 +12,7 @@ from you_train_api.models import (
     WorkoutSegment,
     ExerciseInSegment,
     WorkoutInPlan,
+    WorkoutSession,
 )
 from you_train_api.widgets import HMSTimeField, MSTimeField
 
@@ -167,3 +168,15 @@ class WorkoutInPlanForm(forms.ModelForm):
             self.fields["date"].widget = forms.HiddenInput()
         elif workout_plan and not workout_plan.is_cyclic:
             self.fields["day_of_week"].widget = forms.HiddenInput()
+
+
+class WorkoutSessionForm(forms.ModelForm):
+    class Meta:
+        model = WorkoutSession
+        fields = ["description", "is_completed"]  # Exclude 'date' and 'workout_plan'
+
+    # Add Bootstrap classes to form fields
+    def __init__(self, *args, **kwargs):
+        super(WorkoutSessionForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs["class"] = "form-control"
