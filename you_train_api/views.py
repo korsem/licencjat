@@ -40,6 +40,7 @@ from you_train_api.forms import (
     WorkoutSegmentForm,
     WorkoutInPlanForm,
     WorkoutSessionForm,
+    WorkoutStatsForm,
 )
 from you_train_api.models import (
     Exercise,
@@ -51,6 +52,7 @@ from you_train_api.models import (
     WorkoutSession,
     WorkoutPlan,
     WorkoutInPlan,
+    WorkoutStats,
 )
 
 
@@ -105,7 +107,7 @@ def home(request):
             else:
                 sessions_for_day = workout_days.get(day, [])
                 labels = [
-                    f'<a href="{reverse("session_detail", args=[session.id])}" '
+                    f'<a href="{reverse("workout_session_detail", args=[session.id])}" '
                     f'class="{"past-session" if session.date <= now.date() else ""}">'
                     f"{session.workout.title}</a>"
                     for session in sessions_for_day
@@ -749,15 +751,22 @@ def workout_session_detail(request, session_id):
     session = get_object_or_404(WorkoutSession, id=session_id)
     workout = session.workout
     today = timezone.now().date()
+    can_edit = session.date <= today
 
     # Check if the session can be edited (date is today or in the past)
     can_edit = session.date <= today
+
+    # czy istnieja staty dla tej sesji
+    workout_stats_exists = WorkoutStats.objects.filter(workout_session=session).exists()
 
     if request.method == "POST" and can_edit:
         form = WorkoutSessionForm(request.POST, instance=session)
         if form.is_valid():
             form.save()
-            return redirect("session_detail", session_id=session.id)
+            if session.is_completed and not workout_stats_exists:
+                print("tu redirect? lub puste staty")
+                # WorkoutStats.objects.create(workout_session=session)
+            return redirect("workout_session_detail", session_id=session.id)
     else:
         form = WorkoutSessionForm(instance=session)
 
@@ -766,5 +775,41 @@ def workout_session_detail(request, session_id):
         "workout": workout,
         "can_edit": can_edit,
         "form": form,
+        "workout_stats_exists": workout_stats_exists,
     }
     return render(request, "you_train_api/workout_session_detail.html", context)
+
+
+@login_required(login_url="/login")
+def workout_stats_create(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id)
+    if not session.is_completed:
+        return redirect("workout_session_detail", session_id=session.id)
+
+    if request.method == "POST":
+        form = WorkoutStatsForm(request.POST)
+        if form.is_valid():
+            stats = form.save(commit=False)
+            stats.workout_session = session
+            stats.save()
+            return redirect("workout_stats_detail", session_id=session.id)
+    else:
+        form = WorkoutStatsForm()
+
+    return render(
+        request,
+        "you_train_api/add_workout_stats.html",
+        {"form": form, "session": session},
+    )
+
+
+@login_required(login_url="/login")
+def workout_stats_detail(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id)
+    stats = get_object_or_404(WorkoutStats, workout_session=session)
+
+    context = {
+        "session": session,
+        "stats": stats,
+    }
+    return render(request, "you_train_api/workout_stats_detail.html", context)

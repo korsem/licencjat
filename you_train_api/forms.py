@@ -13,6 +13,7 @@ from you_train_api.models import (
     ExerciseInSegment,
     WorkoutInPlan,
     WorkoutSession,
+    WorkoutStats,
 )
 from you_train_api.widgets import HMSTimeField, MSTimeField
 
@@ -173,10 +174,44 @@ class WorkoutInPlanForm(forms.ModelForm):
 class WorkoutSessionForm(forms.ModelForm):
     class Meta:
         model = WorkoutSession
-        fields = ["description", "is_completed"]  # Exclude 'date' and 'workout_plan'
+        fields = ["description", "is_completed"]
 
-    # Add Bootstrap classes to form fields
     def __init__(self, *args, **kwargs):
         super(WorkoutSessionForm, self).__init__(*args, **kwargs)
+        self.fields["is_completed"].widget = forms.Select(
+            choices=[(True, "Tak"), (False, "Nie")]
+        )
+        self.fields["is_completed"].label = "Trening ukończony"
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs["class"] = "form-control"
+
+
+class WorkoutStatsForm(forms.ModelForm):
+    duration = HMSTimeField(label="Czas trwania (HH:MM:SS)", required=False)
+    distance = forms.FloatField(label="Dystans (km)", required=False, min_value=0)
+    satisfaction = forms.ChoiceField(
+        choices=[(i, str(i)) for i in range(1, 11)],
+        label="Jak w skali 1-10 jesteś zadowolony z treningu",
+    )
+    well_being = forms.ChoiceField(
+        choices=[(i, str(i)) for i in range(1, 11)],
+        label="Jak w skali 1-10 się czujesz po treningu",
+    )
+
+    class Meta:
+        model = WorkoutStats
+        fields = [
+            "description",
+            "distance",
+            "duration",
+            "avg_heart_rate",
+            "max_heart_rate",
+            "satisfaction",
+            "well_being",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(WorkoutStatsForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs["class"] = "form-control"

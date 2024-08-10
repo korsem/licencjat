@@ -1,0 +1,76 @@
+{% extends 'main/base.html' %}
+{% block title %}Dodaj szczegóły treningu{% endblock %}
+
+{% block content %}
+<h1>Dodaj szczegóły dla: {{ session.workout.title }}</h1>
+<form method="post" class="form-container">
+    {% csrf_token %}
+
+    <div class="form-group">
+        {{ form.description.label_tag }}
+        {{ form.description }}
+    </div>
+
+    <div class="form-inline form-group">
+        {{ form.duration.label_tag }}
+        {{ form.duration }}
+    </div>
+
+    <div class="form-inline form-group">
+        {{ form.avg_heart_rate.label_tag }}
+        {{ form.avg_heart_rate }}
+        {{ form.max_heart_rate.label_tag }}
+        {{ form.max_heart_rate }}
+    </div>
+
+    <div class="form-group">
+        {{ form.distance.label_tag }}
+        {{ form.distance }}
+    </div>
+
+    <div class="form-inline small-select">
+        <div class="form-group">
+            {{ form.satisfaction.label_tag }}
+            {{ form.satisfaction }}
+        </div>
+
+        <div class="form-group">
+            {{ form.well_being.label_tag }}
+            {{ form.well_being }}
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Zapisz szczegóły</button>
+</form>
+<a href="{% url 'workout_session_detail' session.id %}" class="btn btn-secondary mt-3">Anuluj</a>
+
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-inline {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .form-inline input {
+        margin-right: 5px;
+        flex: 1; /* Ensure inputs fill the space proportionately */
+    }
+
+    .form-group textarea {
+        height: 150px; /* Increase height of the textarea for description */
+    }
+
+    .small-select select {
+        width: 50px; /* Reduce width of select inputs for satisfaction and well-being */
+    }
+
+    .small-select .form-group {
+        margin-right: 20px;
+    }
+</style>
+{% endblock %}

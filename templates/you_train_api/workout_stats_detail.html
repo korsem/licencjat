@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+{% block title %}Szczegóły treningu{% endblock %}
+
+{% block content %}
+<h1>Szczegóły treningu dla: {{ session.workout.title }}</h1>
+<p><strong>Opis:</strong> {{ stats.description }}</p>
+<p><strong>Dystans:</strong> {{ stats.distance }} km</p>
+<p><strong>Czas trwania:</strong> {{ stats.duration }}</p>
+<p><strong>Średnie tętno:</strong> {{ stats.avg_heart_rate }} bpm</p>
+<p><strong>Maksymalne tętno:</strong> {{ stats.max_heart_rate }} bpm</p>
+<p><strong>Zadowolenie:</strong> {{ stats.satisfaction }} / 10</p>
+<p><strong>Samopoczucie:</strong> {{ stats.well_being }} / 10</p>
+
+<a href="{% url 'workout_session_detail' session.id %}" class="btn btn-secondary mt-3">Powrót do sesji</a>
+{% endblock %}

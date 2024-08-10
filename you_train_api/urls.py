@@ -24,6 +24,8 @@ from .views import (
     generate_training_plan_pdf,
     workout_delete,
     workout_session_detail,
+    workout_stats_create,
+    workout_stats_detail,
 )
 
 exercise_patterns = [
@@ -80,7 +82,17 @@ workout_patterns = [
     path(
         "workout_session/<int:session_id>/",
         workout_session_detail,
-        name="session_detail",
+        name="workout_session_detail",
+    ),
+    path(
+        "workout_stats/<int:session_id>/create/",
+        workout_stats_create,
+        name="create_workout_stats",
+    ),
+    path(
+        "workout_stats/<int:session_id>",
+        workout_stats_detail,
+        name="workout_stats_detail",
     ),
 ]
 
