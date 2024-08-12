@@ -188,7 +188,7 @@ class WorkoutSegment(models.Model):
         Workout, related_name="segments", on_delete=models.CASCADE
     )
     reps = models.IntegerField("Ile razy blok ma być powtórzony")
-    rest_time = models.DurationField(help_text="Czas odpoczynku między seriami")
+    rest_time = models.DurationField(help_text="Czas odpoczynku między seriami", null=True, blank=True)
     notes = models.CharField(max_length=300, blank=True)
     exercises = models.ManyToManyField(Exercise, through="ExerciseInSegment")
 
@@ -207,7 +207,7 @@ class ExerciseInSegment(models.Model):
     reps = models.IntegerField("Ile powtórzeń", blank=True, default=1)
     duration = models.DurationField(
         "Długość ćwiczenia", null=True, blank=True
-    )  # ćwiczenie może być alpo po reps albo po durations
+    )
     rest_time = models.DurationField(
         help_text="Czas odpoczynku między seriami", blank=True, null=True
     )

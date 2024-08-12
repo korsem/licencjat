@@ -1,46 +1,86 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}{{ workout.title }}{% endblock %}
 
 {% block content %}
+
+{% block extra_stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style/add_workout.css' %}">
+{% endblock %}
+
 <h1>{{ workout.title }}</h1>
 <p>{{ workout.description }}</p>
 <p>Day of Week: {{ workout.get_day_of_week_display }}</p>
 
-<h2>Segments</h2>
-<ul>
-    {% for segment in workout.segments.all %}
-    <li>
-        <h3>Segment {{ segment.id }}</h3>
-        <p>Reps: {{ segment.reps }}</p>
-        <p>Rest Time: {{ segment.rest_time }}</p>
-        <p>Notes: {{ segment.notes }}</p>
+<div class="row">
+    <div class="col-md-8">
+        <h2>Segments</h2>
+        {% for segment in workout.segments.all %}
+        <div class="segment-form mb-3" id="segment-{{ forloop.counter0 }}">
+            <h3>Segment {{ forloop.counter }}</h3> <!-- Title with segment number -->
+            <div class="form-group">
+                <label>Reps:</label>
+                <p>{{ segment.reps }}</p>
+            </div>
+            <div class="form-group">
+                <label>Rest Time (m:s):</label>
+                <p>{{ segment.rest_time }}</p>
+            </div>
+            <div class="form-group">
+                <label>Notes:</label>
+                <p>{{ segment.notes }}</p>
+            </div>
 
-        <h4>Exercises</h4>
-        <ul>
-            {% for exercise in segment.exercises.all %}
-            <li>
-                <p>Exercise: {{ exercise.name }}</p>
-                <p>Reps: {{ exercise.exerciseinsegment.reps }}</p>
-                <p>Duration: {{ exercise.exerciseinsegment.duration }}</p>
-                <p>Rest Time: {{ exercise.exerciseinsegment.rest_time }}</p>
-                <p>Notes: {{ exercise.exerciseinsegment.notes }}</p>
-            </li>
-            {% endfor %}
-        </ul>
-    </li>
-    {% empty %}
-    <li>No segments found.</li>
-    {% endfor %}
-</ul>
+            <h4>Exercises</h4>
+            <div class="exercise-formset" id="exercise-formset-{{ forloop.counter0 }}">
+                <table class="table" id="exercise-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reps</th>
+                            <th>Duration (h:m:s)</th>
+                            <th>Rest Time (m:s)</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exercise-table-body-{{ forloop.counter0 }}">
+                        {% for exercise in segment.exerciseinsegment_set.all %}
+                        <tr>
+                            <td>{{ exercise.exercise.name }}</td>
+                            <td>{{ exercise.reps }}</td>
+                            <td>{{ exercise.duration }}</td>
+                            <td>{{ exercise.rest_time }}</td>
+                            <td>{{ exercise.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+          <form method="post" action="{% url 'delete_segment' segment.id %}" style="display:inline;" onsubmit="return confirmDeleteSegment('{{ segment.id }}');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Segment</button>
+            </form>
+        </div>
+        {% empty %}
+        <p>No segments found.</p>
+        {% endfor %}
+    </div>
 
-<!-- Delete Plan Button -->
+    <div class="col-md-4">
+        <!-- Można tu dodać dodatkowe informacje, jeśli są potrzebne -->
+    </div>
+</div>
+<a href="{% url 'add_segments_to_workout' workout.id %}" class="btn btn-success mt-3">Dodaj bloki treningowe</a>
+<!-- Delete Workout Button -->
 <form method="post" action="{% url 'delete_workout' workout.id %}" style="display:inline;" onsubmit="return confirmDelete();">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Delete Workout</button>
 </form>
+
 {% endblock %}
 
+<script src="{% static 'scripts/add_workout.js' %}"></script>
 <script>
     function confirmDelete() {
         return confirm('Are you sure you want to delete the workout "{{ workout.title }}"? This action cannot be undone.');

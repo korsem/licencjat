@@ -11,6 +11,8 @@ class HMSTimeWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        print("HMSTimeWidget")
+        print(value)
         if value:
             h, m, s = map(int, value.split(":"))
             return [h, m, s]
@@ -32,6 +34,8 @@ class HMSTimeField(forms.MultiValueField):
         super().__init__(fields, *args, **kwargs)
 
     def compress(self, data_list):
+        print("HMSTimeField")
+        print(data_list)
         if data_list:
             return f"{data_list[0]:02}:{data_list[1]:02}:{data_list[2]:02}"
         return "00:00:00"
@@ -46,6 +50,8 @@ class MSTimeWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        print("MSTimeWidget")
+        print(value)
         if value:
             h, m, s = map(int, value.split(":"))
             return [h, m, s]
@@ -66,6 +72,8 @@ class MSTimeField(forms.MultiValueField):
         super().__init__(fields, *args, **kwargs)
 
     def compress(self, data_list):
+        print("MSTimeField")
+        print(data_list)
         if data_list:
             return f"{data_list[0]:02}:{data_list[1]:02}"
         return "00:00"

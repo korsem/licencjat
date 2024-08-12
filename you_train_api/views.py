@@ -16,10 +16,7 @@ from django.http import HttpResponse
 from django.utils.translation import gettext as _
 
 import io
-from django.http import FileResponse
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
 from reportlab.lib.pagesizes import A4
 
 from you_train_api.calendar_methods import (
@@ -62,7 +59,7 @@ def home(request):
     current_year = now.year
     current_month = now.month
 
-    # Get the month and year from query parameters, defaulting to current month and year
+    # the month and year from query parameters, defaulting to current month and year
     year = request.GET.get("year", current_year)
     month = request.GET.get("month", current_month)
 
@@ -158,6 +155,7 @@ def sign_up(request):
     return render(request, "registration/sign_up.html", {"form": form})
 
 
+# TODO: ogarnąć ten widok, bo jest na brudno
 @login_required
 def account(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -204,6 +202,7 @@ def account(request, user_id):
     )
 
 
+# TODO: Filtry/sortowanie tu się nie resetuje, ale raczej kwestia skryptu JS
 @login_required(login_url="/login")
 def exercise_list(request):
     exercises = Exercise.objects.filter(user=request.user)
@@ -319,7 +318,7 @@ def equipment_list(request):
     )
 
 
-@login_required
+@login_required(login_url="/login")
 def equipment_exercises(request, equipment_id):
     equipment = get_object_or_404(Equipment, id=equipment_id)
     exercises = Exercise.objects.filter(equipment=equipment, user=request.user)
@@ -395,6 +394,7 @@ def workout_search(request):
     return JsonResponse(workout_list, safe=False)
 
 
+# TODO: pomyśleć nad innym rozwiązaniem dni tygodnia, ale to może przy tłumaczeniu
 @login_required(login_url="/login")
 def training_plan_detail(request, training_plan_id):
     training_plan = get_object_or_404(
@@ -408,10 +408,9 @@ def training_plan_detail(request, training_plan_id):
                 TrainingPlan.objects.filter(user=request.user, is_active=True)
                 .exclude(id=training_plan_id)
                 .first()
-            )  # huh?
+            )
 
             if active_plan:
-                print("tu nie wchodzi")
                 active_plan.is_active = False
                 active_plan.save()
 
@@ -458,7 +457,6 @@ def training_plan_detail(request, training_plan_id):
 
 def workout_list(request):
     workouts = Workout.objects.filter(user=request.user)
-    print(WorkoutSegment.objects.all())
     return render(request, "you_train_api/workout_list.html", {"workouts": workouts})
 
 
@@ -467,6 +465,12 @@ def workout_detail(request, workout_id):
     print(WorkoutSegment.objects.filter(workout=workout))
     return render(request, "you_train_api/workout_detail.html", {"workout": workout})
 
+@login_required(login_url="/login")
+def delete_segment(request, segment_id):
+    segment = get_object_or_404(WorkoutSegment, id=segment_id, workout__user=request.user)
+    workout_id = segment.workout.id
+    segment.delete()
+    return redirect('workout_detail', workout_id=workout_id)
 
 def workout_delete(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
@@ -482,46 +486,30 @@ def workout_delete(request, workout_id):
 
 @login_required(login_url="/login")
 def add_workout(request):
-    WorkoutSegmentFormSet = inlineformset_factory(
-        Workout, WorkoutSegment, form=WorkoutSegmentForm, extra=1, can_delete=True
-    )
-    ExerciseInSegmentFormSet = inlineformset_factory(
-        WorkoutSegment,
-        ExerciseInSegment,
-        form=ExerciseInSegmentForm,
-        formset=WorkoutSegmentForm,
-        extra=1,
-        can_delete=True,
-    )
-
     if request.method == "POST":
         workout_form = WorkoutForm(request.POST)
-        segment_formset = WorkoutSegmentFormSet(request.POST, prefix="segments")
 
-        if workout_form.is_valid() and segment_formset.is_valid():
+        if workout_form.is_valid():
             workout = workout_form.save(commit=False)
             workout.user = request.user
             workout.save()
-
-            segments = segment_formset.save(commit=False)
-            print("aaaaaaaaa", segments)
-            # segmentów nie zapisuje a workout bez ssgtmentu nioe ma prawa bycia
-            for segment in segments:
-                print(segment)
-                segment.workout = workout
-                segment.save()
-
-                exercise_formset = ExerciseInSegmentFormSet(
-                    request.POST,
-                    instance=segment,
-                    prefix=f"segment_{segment.pk}_exercises",
-                )
-                if exercise_formset.is_valid():
-                    exercise_formset.save()
-
-            messages.success(request, f'Training "{workout.title}" has been saved!')
-            return redirect("workout_list")
+            return redirect("add_segments_to_workout", workout_id=workout.id)
     else:
+        # Tworzenie formsetów dla segmentów i ćwiczeń w segmentach
+        ExerciseInSegmentFormSet = inlineformset_factory(
+            WorkoutSegment,
+            ExerciseInSegment,
+            form=ExerciseInSegmentForm,
+            extra=1,
+            can_delete=True,
+        )
+        WorkoutSegmentFormSet = inlineformset_factory(
+            Workout,
+            WorkoutSegment,
+            form=WorkoutSegmentForm,
+            extra=1,
+            can_delete=True,
+        )
         workout_form = WorkoutForm()
         segment_formset = WorkoutSegmentFormSet(prefix="segments")
         exercise_formsets = [
@@ -538,6 +526,50 @@ def add_workout(request):
             "workout_form": workout_form,
             "segment_formset": segment_formset,
             "exercise_formsets": exercise_formsets,
+        },
+    )
+
+
+@login_required(login_url="/login")
+def add_segments_to_workout(request, workout_id):
+    workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+
+    ExerciseInSegmentFormSet = inlineformset_factory(
+        parent_model=WorkoutSegment,
+        model=ExerciseInSegment,
+        form=ExerciseInSegmentForm,
+        extra=0,
+        can_delete=True,
+    )
+
+    if request.method == "POST":
+        segment_form = WorkoutSegmentForm(request.POST, prefix="segment")
+        exercise_formset = ExerciseInSegmentFormSet(request.POST, instance=segment_form.instance, prefix="exercises")
+        if segment_form.is_valid():
+            segment = segment_form.save(commit=False)
+            segment.workout = workout # nie powinien być valid jak nie ma nai jednego ćwiczenia
+            segment.save()
+            if exercise_formset.is_valid():
+                exercise_formset.instance = segment
+                exercise_formset.save()
+                print("uhuhuh", request.POST)
+            else:
+                print("exercise formset:", exercise_formset.errors)
+            if "save_and_add_next" in request.POST:
+                return redirect("add_segments_to_workout", workout_id=workout.id)  # ?
+            else:
+                return redirect("workout_detail", workout_id=workout.id)
+
+    else:
+        segment_form = WorkoutSegmentForm(prefix="segment")
+        exercise_formset = ExerciseInSegmentFormSet(instance=WorkoutSegment(), prefix="exercises")
+
+    return render(
+        request,
+        "you_train_api/add_segments_to_workout.html",
+        {
+            "segment_form": segment_form,
+            "exercise_formset": exercise_formset,
         },
     )
 
@@ -647,6 +679,7 @@ def edit_workout_in_plan(request, training_plan_id, workout_in_plan_id):
     )
 
 
+# TODO: Przerobić, aby było poprawne kodowanie i poprawnie rozmieszczone informacje
 @login_required(login_url="/login")
 def generate_training_plan_pdf(request, training_plan_id):
     training_plan = get_object_or_404(
@@ -746,6 +779,10 @@ def generate_training_plan_pdf(request, training_plan_id):
     return response
 
 
+# TODO:
+#  * can_edit powinno odnosić tylko do is_compled
+#  * czy zostawić obsługę statystyk jak jest?
+#  * jeszcze nieodbyte treningi powinny mieć możliwość zmiany daty
 @login_required(login_url="/login")
 def workout_session_detail(request, session_id):
     session = get_object_or_404(WorkoutSession, id=session_id)
@@ -753,19 +790,16 @@ def workout_session_detail(request, session_id):
     today = timezone.now().date()
     can_edit = session.date <= today
 
-    # Check if the session can be edited (date is today or in the past)
-    can_edit = session.date <= today
-
-    # czy istnieja staty dla tej sesji
     workout_stats_exists = WorkoutStats.objects.filter(workout_session=session).exists()
 
     if request.method == "POST" and can_edit:
         form = WorkoutSessionForm(request.POST, instance=session)
         if form.is_valid():
             form.save()
-            if session.is_completed and not workout_stats_exists:
-                print("tu redirect? lub puste staty")
-                # WorkoutStats.objects.create(workout_session=session)
+            # ?
+            # if session.is_completed and not workout_stats_exists:
+            #     print("tu redirect? lub puste staty")
+            #       WorkoutStats.objects.create(workout_session=session)
             return redirect("workout_session_detail", session_id=session.id)
     else:
         form = WorkoutSessionForm(instance=session)
@@ -803,6 +837,7 @@ def workout_stats_create(request, session_id):
     )
 
 
+# TODO: Zastanowić się czy wyświetlenie tego widoku w obecny sposób jest wystarczający
 @login_required(login_url="/login")
 def workout_stats_detail(request, session_id):
     session = get_object_or_404(WorkoutSession, id=session_id)
@@ -815,6 +850,7 @@ def workout_stats_detail(request, session_id):
     return render(request, "you_train_api/workout_stats_detail.html", context)
 
 
+# TODO: Tu powinno być dokładniejsze info niż na zwykłym detail
 @login_required(login_url="/login")
 def active_plan_detail(request):
     active_plan = TrainingPlan.objects.filter(user=request.user, is_active=True).first()
@@ -823,6 +859,7 @@ def active_plan_detail(request):
     return render(request, "you_train_api/active_plan_detail.html")
 
 
+# TODO: Napisać podsumowania statystyk
 @login_required(login_url="/login")
 def workout_stats_summary(request):
     workout_stats = WorkoutStats.objects.filter(

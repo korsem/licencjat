@@ -27,7 +27,7 @@ from .views import (
     workout_stats_create,
     workout_stats_detail,
     active_plan_detail,
-    workout_stats_summary,
+    workout_stats_summary, add_segments_to_workout, delete_segment,
 )
 
 exercise_patterns = [
@@ -84,7 +84,9 @@ training_plan_patterns = [
 workout_patterns = [
     path("", workout_list, name="workout_list"),
     path("add/", add_workout, name="add_workout"),
+    path("add/<int:workout_id>/", add_segments_to_workout, name="add_segments_to_workout"),
     path("<int:workout_id>/", workout_detail, name="workout_detail"),
+    path("delete_segment/<int:segment_id>", delete_segment, name="delete_segment"),
     path("<int:workout_id>/delete/", workout_delete, name="delete_workout"),
     path(
         "workout_session/<int:session_id>/",

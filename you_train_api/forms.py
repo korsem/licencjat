@@ -116,7 +116,7 @@ class WorkoutForm(forms.ModelForm):
 
 
 class WorkoutSegmentForm(forms.ModelForm):
-    rest_time = MSTimeField(label="Rest Time")
+    rest_time = forms.DurationField(label="Rest Time", required=False)
     reps = forms.IntegerField(
         label="Ile razy blok ma być powtórzony", required=True, min_value=1, initial=1
     )
@@ -125,19 +125,11 @@ class WorkoutSegmentForm(forms.ModelForm):
         model = WorkoutSegment
         fields = ["reps", "rest_time", "notes"]
 
-    def clean(self):
-        cleaned_data = super().clean()
-        reps = cleaned_data.get("reps")
-        rest_time = cleaned_data.get("rest_time")
-
-        if reps is None or rest_time is None:
-            raise forms.ValidationError("Both reps and rest time are required.")
-
 
 class ExerciseInSegmentForm(forms.ModelForm):
 
-    duration = HMSTimeField(label="Duration", required=False)
-    rest_time = MSTimeField(label="Rest Time", required=True)
+    duration = forms.DurationField(label="Duration", required=False)
+    rest_time = forms.DurationField(label="Rest Time", required=True)
 
     class Meta:
         model = ExerciseInSegment
