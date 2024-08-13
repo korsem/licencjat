@@ -465,12 +465,16 @@ def workout_detail(request, workout_id):
     print(WorkoutSegment.objects.filter(workout=workout))
     return render(request, "you_train_api/workout_detail.html", {"workout": workout})
 
+
 @login_required(login_url="/login")
 def delete_segment(request, segment_id):
-    segment = get_object_or_404(WorkoutSegment, id=segment_id, workout__user=request.user)
+    segment = get_object_or_404(
+        WorkoutSegment, id=segment_id, workout__user=request.user
+    )
     workout_id = segment.workout.id
     segment.delete()
-    return redirect('workout_detail', workout_id=workout_id)
+    return redirect("workout_detail", workout_id=workout_id)
+
 
 def workout_delete(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
@@ -530,6 +534,7 @@ def add_workout(request):
     )
 
 
+# TODO: walidacja na brak ćwiczenia w segmencie
 @login_required(login_url="/login")
 def add_segments_to_workout(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id, user=request.user)
@@ -544,25 +549,29 @@ def add_segments_to_workout(request, workout_id):
 
     if request.method == "POST":
         segment_form = WorkoutSegmentForm(request.POST, prefix="segment")
-        exercise_formset = ExerciseInSegmentFormSet(request.POST, instance=segment_form.instance, prefix="exercises")
+        exercise_formset = ExerciseInSegmentFormSet(
+            request.POST, instance=segment_form.instance, prefix="exercises"
+        )
         if segment_form.is_valid():
             segment = segment_form.save(commit=False)
-            segment.workout = workout # nie powinien być valid jak nie ma nai jednego ćwiczenia
+            segment.workout = workout
             segment.save()
             if exercise_formset.is_valid():
                 exercise_formset.instance = segment
                 exercise_formset.save()
-                print("uhuhuh", request.POST)
             else:
+                print(exercise_formset.data)
                 print("exercise formset:", exercise_formset.errors)
             if "save_and_add_next" in request.POST:
-                return redirect("add_segments_to_workout", workout_id=workout.id)  # ?
+                return redirect("add_segments_to_workout", workout_id=workout.id)
             else:
                 return redirect("workout_detail", workout_id=workout.id)
 
     else:
         segment_form = WorkoutSegmentForm(prefix="segment")
-        exercise_formset = ExerciseInSegmentFormSet(instance=WorkoutSegment(), prefix="exercises")
+        exercise_formset = ExerciseInSegmentFormSet(
+            instance=WorkoutSegment(), prefix="exercises"
+        )
 
     return render(
         request,

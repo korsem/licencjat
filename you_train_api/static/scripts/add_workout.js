@@ -54,32 +54,29 @@ window.onclick = function(event) {
 
 function saveExerciseDetails(addNext) {
     var reps = document.getElementById('reps').value;
-    var duration_h = document.getElementById('duration_0').value;
-    var duration_m = document.getElementById('duration_1').value;
-    var duration_s = document.getElementById('duration_2').value;
+    var duration_0 = document.getElementById('duration_0').value;
+    var duration_1 = document.getElementById('duration_1').value;
+    var duration_2 = document.getElementById('duration_2').value;
     var rest_time_m = document.getElementById('rest_time_0').value || '00';
     var rest_time_s = document.getElementById('rest_time_1').value || '00';
     var notes = document.getElementById('notes').value;
 
     // Validate that either reps or duration is filled, but not both
-    if ((reps && (duration_h || duration_m || duration_s)) || (!reps && (!duration_h && !duration_m && !duration_s))) {
-        console.log(`Reps: ${reps}, Duration: ${duration_h}:${duration_m}:${duration_s}`);
+    if ((reps && (duration_0 || duration_1 || duration_2)) || (!reps && (!duration_0 && !duration_1 && !duration_2))) {
+        console.log(`Reps: ${reps}, Duration: ${duration_0}:${duration_1}:${duration_2}`);
 
         alert('Either reps or duration must be specified, but not both.');
         return;
     }
 
     // Set duration fields to '00' if not provided
-    duration_m = duration_m.padStart(2, '0') || '00';
-    duration_s = duration_s.padStart(2, '0') || '00';
+    duration_m = duration_1.padStart(2, '0') || '00';
+    duration_s = duration_2.padStart(2, '0') || '00';
 
     if (!reps) {
-        duration_h = duration_h || '00';
-    } else {
-        duration_h = '';
-        duration_m = '';
-        duration_s = '';
+        duration_0 = duration_0 || '00';
     }
+
  var exerciseTableBody = document.getElementById('exercise-table-body');
     if (!exerciseTableBody) {
         console.error('Exercise table body not found');
@@ -102,14 +99,15 @@ function saveExerciseDetails(addNext) {
     // Generate formset index and add hidden inputs for new exercise
     var formsetIndex = document.getElementById('id_exercises-TOTAL_FORMS').value;
     console.log('Formset index:', formsetIndex)
+    console.log("${duration_0}:${duration_1}:${duration_2}")
     var hiddenInputs = `
         <input type="hidden" name="exercises-${formsetIndex}-exercise" value="${exercise}">
         <input type="hidden" name="exercises-${formsetIndex}-reps" value="${reps || 1}">
-        <input type="hidden" name="exercises-${formsetIndex}-duration" value="${duration_h}:${duration_m}:${duration_s}">
+        <input type="hidden" name="exercises-${formsetIndex}-duration" value="${durationString}">
         <input type="hidden" name="exercises-${formsetIndex}-rest_time" value="${rest_time_m}:${rest_time_s}">
         <input type="hidden" name="exercises-${formsetIndex}-notes" value="${notes}">
     `;
-    newExerciseRow.innerHTML += hiddenInputs;/* w sumie to nioe wiem*/
+    newExerciseRow.innerHTML += hiddenInputs;
 
     exerciseTableBody.appendChild(newExerciseRow);
 

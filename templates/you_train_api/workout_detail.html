@@ -11,7 +11,6 @@
 
 <h1>{{ workout.title }}</h1>
 <p>{{ workout.description }}</p>
-<p>Day of Week: {{ workout.get_day_of_week_display }}</p>
 
 <div class="row">
     <div class="col-md-8">
@@ -25,7 +24,7 @@
             </div>
             <div class="form-group">
                 <label>Rest Time (m:s):</label>
-                <p>{{ segment.rest_time }}</p>
+                <p>{{ segment.rest_time  | default_if_none:'-'}}</p>
             </div>
             <div class="form-group">
                 <label>Notes:</label>
@@ -49,7 +48,7 @@
                         <tr>
                             <td>{{ exercise.exercise.name }}</td>
                             <td>{{ exercise.reps }}</td>
-                            <td>{{ exercise.duration }}</td>
+                            <td>{{ exercise.duration | default_if_none:''}}</td>
                             <td>{{ exercise.rest_time }}</td>
                             <td>{{ exercise.notes }}</td>
                         </tr>
@@ -67,9 +66,9 @@
         {% endfor %}
     </div>
 
-    <div class="col-md-4">
-        <!-- Można tu dodać dodatkowe informacje, jeśli są potrzebne -->
-    </div>
+{#    <div class="col-md-4">#}
+{#        <!-- Można tu dodać dodatkowe informacje, jeśli są potrzebne -->#}
+{#    </div>#}
 </div>
 <a href="{% url 'add_segments_to_workout' workout.id %}" class="btn btn-success mt-3">Dodaj bloki treningowe</a>
 <!-- Delete Workout Button -->

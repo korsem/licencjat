@@ -20,15 +20,11 @@
             <div class="form-group">
                 {{ segment_form.reps.label_tag }}
                 {{ segment_form.reps }}
+            </br>
+                {{ segment_form.rest_time.label_tag }}
+                {{ segment_form.rest_time }}
             </div>
-            <div class="form-group">
-                <label for="rest_time">Rest Time (m:s):</label>
-                <div class="form-inline">
-                    <input type="number" id="seg_rest_time_0" class="form-control" placeholder="m" min="0">
-                    <span> : </span>
-                    <input type="number" id="seg_rest_time_1" class="form-control" placeholder="s" min="0" max="59">
-                </div>
-            </div>
+
             <div class="form-group">
                 {{ segment_form.notes.label_tag }}
                 <textarea name="{{ segment_form.notes.name }}" class="form-control" rows="4" placeholder="Notes">{{ segment_form.notes.value|default_if_none:'' }}</textarea>
@@ -52,7 +48,7 @@
                         <tr>
                             <td>{{ exercise_form.instance.exercise.name }}</td>
                             <td>{{ exercise_form.instance.reps }}</td>
-                            <td>{{ exercise_form.instance.duration }}</td>
+                             <td>{% if exercise_form.instance.duration != "00:00:00" %}{{ exercise_form.instance.duration }}{% else %}{% endif %}</td>
                             <td>{{ exercise_form.instance.rest_time }}</td>
                             <td>{{ exercise_form.instance.notes }}</td>
                         </tr>

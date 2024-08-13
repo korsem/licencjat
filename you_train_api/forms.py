@@ -15,7 +15,7 @@ from you_train_api.models import (
     WorkoutSession,
     WorkoutStats,
 )
-from you_train_api.widgets import HMSTimeField, MSTimeField
+from you_train_api.widgets import HMSTimeField, MSTimeField, MSTimeWidget
 
 
 class RegisterForm(UserCreationForm):
@@ -136,12 +136,21 @@ class ExerciseInSegmentForm(forms.ModelForm):
         fields = ["exercise", "reps", "duration", "rest_time", "notes"]
 
     def clean(self):
+        # jesli duration to none niech przyjmuje blank '' i zapisze tez blank '' lub null
+        print(self.data.get("duration"))
         cleaned_data = super().clean()
         reps = cleaned_data.get("reps")
         duration = cleaned_data.get("duration")
 
         if not reps and not duration:
             raise forms.ValidationError("Either reps or duration must be specified.")
+
+        # if duration is None:
+        #     cleaned_data["duration"] = "00:00:00"
+
+        print(cleaned_data)
+
+        return cleaned_data
 
 
 class WorkoutSelectionForm(forms.Form):
