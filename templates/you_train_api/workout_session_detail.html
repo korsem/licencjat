@@ -8,7 +8,6 @@
 <p><strong>Plan treningowy:</strong> {{ session.workout_plan.title }}</p>
 <p><strong>Trening ukończony:</strong> {{ session.is_completed|yesno:"Tak,Nie" }}</p>
 
-{#    tu raczej powinno byc cze opis mokzna zawsze zmieniac#}
 <form method="post">
     {% csrf_token %}
     <div class="form-group">
@@ -29,20 +28,22 @@
 <p><strong>Dzień tygodnia:</strong> {{ session.date|date:"l" }}</p>
 
 
-<h3>Segmenty Treningu</h3>
+<h3>Bloki treningowe</h3>
 <ul>
-    {% for segment in workout.segments.all %}
+{{ segments }}
+    {% for segment in segments %}
+        {{ segment }} ?
     <li>
-        <h4>Segment {{ segment.id }}</h4>
+        <h4>Segment {{ forloop.counter }}</h4>
         <p><strong>Powtórzenia:</strong> {{ segment.reps }}</p>
         <p><strong>Czas odpoczynku:</strong> {{ segment.rest_time }}</p>
         <p><strong>Notatki:</strong> {{ segment.notes }}</p>
 
         <h5>Ćwiczenia</h5>
         <ul>
-            {% for exercise in segment.exercises.all %}
+            {% for exercise in segment.exerciseinsegment_set.all %}
             <li>
-                <p><strong>Ćwiczenie:</strong> {{ exercise.name }}</p>
+                <p><strong>Ćwiczenie:</strong> {{ exercise.exercise.name }}</p>
                 <p><strong>Powtórzenia:</strong> {{ exercise.exerciseinsegment.reps }}</p>
                 <p><strong>Czas trwania:</strong> {{ exercise.exerciseinsegment.duration }}</p>
                 <p><strong>Czas odpoczynku:</strong> {{ exercise.exerciseinsegment.rest_time }}</p>

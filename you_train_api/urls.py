@@ -1,4 +1,5 @@
 from django.urls import include, path
+from .pdf_view import generate_training_plan_pdf
 from .views import (
     home,
     sign_up,
@@ -21,7 +22,6 @@ from .views import (
     add_workouts_to_plan,
     delete_training_plan,
     edit_workout_in_plan,
-    generate_training_plan_pdf,
     workout_delete,
     workout_session_detail,
     workout_stats_create,

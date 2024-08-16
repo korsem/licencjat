@@ -4,6 +4,24 @@ from django.contrib.auth.models import User
 from you_train_api.models import WorkoutSession, WorkoutInPlan, TrainingPlan
 
 
+def get_polish_day_of_week(day: int) -> str:
+    """
+    Args:
+        day: int (0-6)
+    Returns the name of the day of the week in Polish.
+    """
+    days = {
+        0: "poniedziałek",
+        1: "wtorek",
+        2: "środa",
+        3: "czwartek",
+        4: "piątek",
+        5: "sobota",
+        6: "niedziela",
+    }
+    return days[day]
+
+
 def get_active_workout_plan_for_user(user: User):
     """
     Args:
