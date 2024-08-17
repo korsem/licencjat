@@ -12,12 +12,7 @@ from django.forms import inlineformset_factory
 from django.http import JsonResponse
 import calendar
 from django.contrib import messages
-from django.http import HttpResponse
 from django.utils.translation import gettext as _
-
-import io
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
 
 from you_train_api.calendar_methods import (
     create_workout_sessions,
@@ -202,7 +197,6 @@ def account(request, user_id):
     )
 
 
-# TODO: Filtry/sortowanie tu się nie resetuje, ale raczej kwestia skryptu JS
 @login_required(login_url="/login")
 def exercise_list(request):
     exercises = Exercise.objects.filter(user=request.user)
@@ -559,9 +553,6 @@ def add_segments_to_workout(request, workout_id):
             if exercise_formset.is_valid():
                 exercise_formset.instance = segment
                 exercise_formset.save()
-            else:
-                print(exercise_formset.data)
-                print("exercise formset:", exercise_formset.errors)
             if "save_and_add_next" in request.POST:
                 return redirect("add_segments_to_workout", workout_id=workout.id)
             else:
@@ -761,7 +752,6 @@ def workout_stats_detail(request, session_id):
     return render(request, "you_train_api/workout_stats_detail.html", context)
 
 
-# TODO: Tu powinno być dokładniejsze info niż na zwykłym detail
 @login_required(login_url="/login")
 def active_plan_detail(request):
     active_plan = TrainingPlan.objects.filter(user=request.user, is_active=True).first()

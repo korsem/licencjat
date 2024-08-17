@@ -56,19 +56,12 @@ def create_workout_sessions(workout_in_plan: WorkoutInPlan) -> None:
     Przy aktualizacji, usuwa wszystkie WorkoutSession związane z danym WorkoutInPlan,
     od dnia aktualnego, minione WorkoutSessions pozostają nienaruszone.
     """
-    # na starcie workout session nie ma description i is_completed jest ustawiony na False
-    # workout = workout_in_plan.workout (swoją drogą niepotrzebne to pole można wywalić, bo po to mam workout in session ig)
-    # workout_plan = wiorkout_in_plan.plan - podobnie
-    # data dla planu niecykliucznego jest kopiowana z workout_in_plan.date (wiec w sumie taki skopiowany model hehe)
-    # data dla planu cyklicznego jest obliczana na podstawie workout_in_plan.day_of_week
-    # i workout_sessions są generowane na podstawie dni tygodnia i WorkoutPlan.start_date (end date to start date + tytle tygodni ile jest cykló))
 
     if workout_in_plan.workout_plan.is_cyclic:
         workout_first_day = get_first_workout_day(
             workout_in_plan.workout_plan.start_date, workout_in_plan.day_of_week
         )
 
-        print(workout_first_day)
         for i in range(0, workout_in_plan.workout_plan.cycle_length):
             WorkoutSession.objects.create(  # można bulkowo
                 date=workout_first_day + timedelta(weeks=i),

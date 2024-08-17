@@ -156,35 +156,3 @@ function loadExercises(query) {
         });
 }
 
-// save workout
-// document.getElementById('save-segment').addEventListener('click', function(event) {
-//     event.preventDefault(); // Prevent default form submission
-//
-//     var segmentForm = document.querySelector('.segment-form');
-//     var isValid = true;
-//
-//     // Get values from the segment form
-//     var restTimeMinutes = segmentForm.querySelector('input[id^="seg_rest_time_"][id$="_0"]').value;
-//     var restTimeSeconds = segmentForm.querySelector('input[id^="seg_rest_time_"][id$="_1"]').value;
-//     // var reps = segmentForm.querySelector('input[name$="reps"]').value;
-//     var exerciseRows = segmentForm.querySelectorAll('tbody tr'); // Rows with exercises in the segment
-//
-//     // Log the segment and exercise count
-//     console.log(`Segment has ${exerciseRows.length} exercises`);
-//
-//     // Validate form fields
-//     if (!reps) {
-//         isValid = false;
-//         alert('All required fields must be filled out.');
-//     }
-//
-//     if (exerciseRows.length === 0) {
-//         isValid = false;
-//         alert('There needs to be at least 1 exercise in the segment.');
-//     }
-//
-//     if (isValid) {
-//         console.log('Form is valid. Number of exercises:', exerciseRows.length);
-//         document.getElementById('workout-segment-form').submit();
-//     }
-// });

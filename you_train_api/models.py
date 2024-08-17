@@ -45,7 +45,7 @@ class Exercise(models.Model):
     )
     is_cardio = models.BooleanField(
         default=False, help_text="Czy ćwiczenie jest cardio?"
-    )  # jeśli tak to nie ma reps, tylko duration oraz muscle_group = cardio
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video_url = models.URLField(
         blank=True, help_text="Link do filmiku instruktażowego z ćwiczeniem"
@@ -93,13 +93,13 @@ class WorkoutPlan(models.Model):
     )
     end_date = models.DateField(
         null=True, blank=True, help_text="Data zakończenia planu"
-    )  # dla cyklicznego nie musi istnieć
+    )  # dla niecyklicznego planu
     is_cyclic = models.BooleanField(
         default=False, help_text="Czy powtarza się co tydzień?"
-    )  # if true cycle_length is required
+    )
     cycle_length = models.PositiveIntegerField(
         null=True, blank=True, help_text="Ile tygodni ma trwać Plan?"
-    )
+    )  # dla cyklicznego
 
     def clean(self):
         if self.is_cyclic:
@@ -115,7 +115,7 @@ class WorkoutPlan(models.Model):
             self.cycle_length = None  # Ensure cycle_length is null for non-cyclic plans
 
     def save(self, *args, **kwargs):
-        self.clean()  # Ensure validation is performed
+        self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -132,10 +132,8 @@ class WorkoutInPlan(models.Model):
     workout_plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE)
     day_of_week = models.IntegerField(
         choices=[(i, calendar.day_name[i]) for i in range(7)], blank=True, null=True
-    )  # if plan not cyclic then null
-    date = models.DateField(
-        blank=True, null=True
-    )  # Only applicable if plan is not cyclic
+    )
+    date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.workout_plan} - {self.workout} - {self.id}"
@@ -163,16 +161,13 @@ class WorkoutSession(models.Model):
 
     description = models.CharField(max_length=300, blank=True)
     date = models.DateField()
-    is_completed = models.BooleanField(
-        default=False
-    )  # jesli jestesmy w dniu danym lub pózniejszym to dopiero można zmienić na True
+    is_completed = models.BooleanField(default=False)
     workout_plan = models.ForeignKey(
         WorkoutPlan, related_name="sessions", on_delete=models.CASCADE
     )
     workout = models.ForeignKey(
         Workout, related_name="sessions", on_delete=models.CASCADE
-    )  # zmienić na workout in plan
-    # goal = models.CharField(max_length=100, blank=True) idk czy potrzebne
+    )
 
     def __str__(self):
         return f"{self.date} - {self.workout.title}"
@@ -216,19 +211,17 @@ class ExerciseInSegment(models.Model):
 
 class WorkoutStats(models.Model):
     """
-    Statystyki odbytego, gdy workout session jest completed
+    Statystyki, które można wypełnić po odbytym treningu.
     """
 
-    workout_session = models.OneToOneField(
-        WorkoutSession, on_delete=models.CASCADE
-    )  # po ustawieniu workoutsession na clpmeted tworzy się workoutstats
+    workout_session = models.OneToOneField(WorkoutSession, on_delete=models.CASCADE)
     description = models.CharField(max_length=300, blank=True)
     distance = models.FloatField(blank=True, null=True)
-    duration = models.DurationField(blank=True, null=True)  # moze float?
+    duration = models.DurationField(blank=True, null=True)
     avg_heart_rate = models.IntegerField(blank=True, null=True)
     max_heart_rate = models.IntegerField(blank=True, null=True)
-    satisfaction = models.IntegerField(blank=True, null=True)  # 1-10 może bez null
-    well_being = models.IntegerField(blank=True, null=True)  # 1-10 może bez null
+    satisfaction = models.IntegerField(blank=True, null=True)
+    well_being = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.workout_session} - stats"
