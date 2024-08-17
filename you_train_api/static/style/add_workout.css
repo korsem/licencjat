@@ -58,6 +58,27 @@
     width: 100%;
 }
 
+.title {
+    padding: 20px 0;
+    font-size: 2rem;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.btn {
+    width: 100%;
+    text-align: center;
+}
+
+.button-gap {
+    margin-bottom: 24px;
+}
+
 #exercise-table th, #exercise-table td {
     border: 1px solid #ddd;
     padding: 10px;

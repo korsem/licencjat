@@ -10,6 +10,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
+from django.db.models import Avg, Sum
 import calendar
 from django.contrib import messages
 from django.utils.translation import gettext as _
@@ -760,14 +761,32 @@ def active_plan_detail(request):
     return render(request, "you_train_api/active_plan_detail.html")
 
 
-# TODO: Napisać podsumowania statystyk
-@login_required(login_url="/login")
 def workout_stats_summary(request):
     workout_stats = WorkoutStats.objects.filter(
         workout_session__workout__user=request.user
     )
+
+    avg_satisfaction = workout_stats.aggregate(Avg("satisfaction"))["satisfaction__avg"]
+    avg_satisfaction = round(avg_satisfaction, 1) if avg_satisfaction else None
+
+    avg_well_being = workout_stats.aggregate(Avg("well_being"))["well_being__avg"]
+    avg_well_being = round(avg_well_being, 1) if avg_well_being else None
+
+    active_plan_sessions_count = WorkoutSession.objects.filter(
+        workout__workout_plan__training_plan__is_active=True,
+        workout__workout_plan__training_plan__user=request.user,
+    ).count()
+
+    total_sessions_count = workout_stats.count()
+
     return render(
         request,
         "you_train_api/workout_stats_summary.html",
-        {"workout_stats": workout_stats},
+        {
+            "workout_stats": workout_stats,
+            "avg_satisfaction": avg_satisfaction,
+            "avg_well_being": avg_well_being,
+            "active_plan_sessions_count": active_plan_sessions_count,
+            "total_sessions_count": total_sessions_count,
+        },
     )

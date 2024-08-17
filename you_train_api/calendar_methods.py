@@ -46,6 +46,15 @@ def get_first_workout_day(start_date, week_day) -> datetime.date:
     return start_date + timedelta(days=days_ahead)
 
 
+def get_monday_date(date: datetime.date) -> datetime.date:
+    """
+    Args:
+        date: datetime.date
+    Returns the date of the Monday of the week in which the given date is.
+    """
+    return date - timedelta(days=date.weekday())
+
+
 def create_workout_sessions(workout_in_plan: WorkoutInPlan) -> None:
     """ "
     Args:

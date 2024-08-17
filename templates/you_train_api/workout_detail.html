@@ -66,16 +66,20 @@
         {% endfor %}
     </div>
 
-{#    <div class="col-md-4">#}
-{#        <!-- Można tu dodać dodatkowe informacje, jeśli są potrzebne -->#}
-{#    </div>#}
 </div>
-<a href="{% url 'add_segments_to_workout' workout.id %}" class="btn btn-success mt-3">Dodaj bloki treningowe</a>
-<!-- Delete Workout Button -->
-<form method="post" action="{% url 'delete_workout' workout.id %}" style="display:inline;" onsubmit="return confirmDelete();">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete Workout</button>
-</form>
+
+    <div class="button-grid">
+
+    <a href="{% url 'add_segments_to_workout' workout.id %}" class="btn btn-success mt-3">Add segments</a>
+    <!-- Delete Workout Button -->
+    <form method="post" action="{% url 'delete_workout' workout.id %}" style="display:inline;" onsubmit="return confirmDelete();">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete Workout</button>
+    </form>
+    </div>
+
+
+    <div class="button-gap"></div>
 
 {% endblock %}
 

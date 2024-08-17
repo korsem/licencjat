@@ -5,6 +5,15 @@
 <h1>Workout Stats Summary</h1>
 
 {% if workout_stats %}
+    <!-- Wyświetlanie dodatkowych statystyk -->
+    <div class="summary-stats mb-4">
+        <p><strong>Average Satisfaction:</strong> {{ avg_satisfaction }}</p>
+        <p><strong>Average Well Being:</strong> {{ avg_well_being }}</p>
+        <p><strong>Completed Sessions in Active Plan:</strong> {{ active_plan_sessions_count }}</p>
+        <p><strong>Total Completed Sessions:</strong> {{ total_sessions_count }}</p>
+    </div>
+
+    <!-- Tabela z danymi o treningach -->
     <table class="table table-striped">
         <thead>
             <tr>
