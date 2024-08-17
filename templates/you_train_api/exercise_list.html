@@ -21,7 +21,7 @@
                 <div>
                     {% for value, label in MUSCLE_GROUP_CHOICES %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="muscle_group" value="{{ value }}" id="muscle_group_{{ value }}" {% if value in selected_muscle_groups %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" name="muscle_group" value="{{ value }}" id="muscle_group_{{ value }}">
                             <label class="form-check-label" for="muscle_group_{{ value }}">{{ label }}</label>
                         </div>
                     {% endfor %}
@@ -31,7 +31,7 @@
             <div id="cardio_filters" style="display: none;">
                 <label>Filter by cardio:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="is_cardio" id="is_cardio" {% if is_cardio %}checked{% endif %}>
+                    <input class="form-check-input" type="checkbox" name="is_cardio" id="is_cardio">
                     <label class="form-check-label" for="is_cardio">Cardio Exercises</label>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                 <div>
                     {% for equipment in equipment_list %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="equipment" value="{{ equipment.name }}" id="equipment_{{ equipment.id }}" {% if equipment.name in selected_equipment %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" name="equipment" value="{{ equipment.name }}" id="equipment_{{ equipment.id }}">
                             <label class="form-check-label" for="equipment_{{ equipment.id }}">{{ equipment.name }}</label>
                         </div>
                     {% endfor %}

@@ -1,11 +1,17 @@
 {% extends 'main/base.html' %}
+{% load static %}
+
 {% block title %}Workout Session Detail{% endblock %}
 
 {% block content %}
+
+{% block extra_stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style/add_workout.css' %}">
+{% endblock %}
+
 <h1>{{ workout.title }}</h1>
 <p><strong>Opis sesji:</strong> {{ session.description }}</p>
 <p><strong>Data sesji:</strong> {{ session.date }}</p>
-<p><strong>Plan treningowy:</strong> {{ session.workout_plan.title }}</p>
 <p><strong>Trening ukończony:</strong> {{ session.is_completed|yesno:"Tak,Nie" }}</p>
 
 <form method="post">
@@ -28,32 +34,64 @@
 <p><strong>Dzień tygodnia:</strong> {{ session.date|date:"l" }}</p>
 
 
-<h3>Bloki treningowe</h3>
-<ul>
-{{ segments }}
-    {% for segment in segments %}
-        {{ segment }} ?
-    <li>
-        <h4>Segment {{ forloop.counter }}</h4>
-        <p><strong>Powtórzenia:</strong> {{ segment.reps }}</p>
-        <p><strong>Czas odpoczynku:</strong> {{ segment.rest_time }}</p>
-        <p><strong>Notatki:</strong> {{ segment.notes }}</p>
+<div class="row">
+    <div class="col-md-8">
+        <h2>Segments</h2>
+        {% for segment in workout.segments.all %}
+        <div class="segment-form mb-3" id="segment-{{ forloop.counter0 }}">
+            <h3>Segment {{ forloop.counter }}</h3> <!-- Title with segment number -->
+            <div class="form-group">
+                <label>Reps:</label>
+                <p>{{ segment.reps }}</p>
+            </div>
+            <div class="form-group">
+                <label>Rest Time (m:s):</label>
+                <p>{{ segment.rest_time  | default_if_none:'-'}}</p>
+            </div>
+            <div class="form-group">
+                <label>Notes:</label>
+                <p>{{ segment.notes }}</p>
+            </div>
 
-        <h5>Ćwiczenia</h5>
-        <ul>
-            {% for exercise in segment.exerciseinsegment_set.all %}
-            <li>
-                <p><strong>Ćwiczenie:</strong> {{ exercise.exercise.name }}</p>
-                <p><strong>Powtórzenia:</strong> {{ exercise.exerciseinsegment.reps }}</p>
-                <p><strong>Czas trwania:</strong> {{ exercise.exerciseinsegment.duration }}</p>
-                <p><strong>Czas odpoczynku:</strong> {{ exercise.exerciseinsegment.rest_time }}</p>
-                <p><strong>Notatki:</strong> {{ exercise.exerciseinsegment.notes }}</p>
-            </li>
-            {% endfor %}
-        </ul>
-    </li>
-    {% endfor %}
-</ul>
+            <h4>Exercises</h4>
+            <div class="exercise-formset" id="exercise-formset-{{ forloop.counter0 }}">
+                <table class="table" id="exercise-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reps</th>
+                            <th>Duration (h:m:s)</th>
+                            <th>Rest Time (m:s)</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exercise-table-body-{{ forloop.counter0 }}">
+                        {% for exercise in segment.exerciseinsegment_set.all %}
+                        <tr>
+                            <td>{{ exercise.exercise.name }}</td>
+                            <td>{{ exercise.reps }}</td>
+                            <td>{{ exercise.duration | default_if_none:''}}</td>
+                            <td>{{ exercise.rest_time }}</td>
+                            <td>{{ exercise.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+          <form method="post" action="{% url 'delete_segment' segment.id %}" style="display:inline;" onsubmit="return confirmDeleteSegment('{{ segment.id }}');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Segment</button>
+            </form>
+        </div>
+        {% empty %}
+        <p>No segments found.</p>
+        {% endfor %}
+    </div>
+
+{#    <div class="col-md-4">#}
+{#        <!-- Można tu dodać dodatkowe informacje, jeśli są potrzebne -->#}
+{#    </div>#}
+</div>
 
 {% if session.is_completed %}
     {% if workout_stats_exists %}
