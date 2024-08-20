@@ -1,20 +1,19 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Workout List{% endblock %}
+{% block title %}Lista treningów{% endblock %}
 
 {% block content %}
-<h1>Workout List</h1>
+<h1>Lista treningów</h1>
 <ul>
     {% for workout in workouts %}
     <li>
         <h2>{{ workout.title }}</h2>
         <p>{{ workout.description }}</p>
-        <p>Day of Week: {{ workout.get_day_of_week_display }}</p>
-        <a href="{% url 'workout_detail' workout.id %}">View Details</a>
+        <a href="{% url 'workout_detail' workout.id %}">Pokaż szczegóły</a>
     </li>
     {% empty %}
     <li>No workouts found.</li>
     {% endfor %}
-<a href="{% url 'add_workout' %}" class="btn btn-secondary mt-4">Add New workout</a>
+<a href="{% url 'add_workout' %}" class="btn btn-secondary mt-4">Dodaj nowy trening</a>
 </ul>
 {% endblock %}

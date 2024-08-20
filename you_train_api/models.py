@@ -15,10 +15,10 @@ class Equipment(models.Model):
     który następnie może łączyć ze znanymi ćwiczeniami
     """
 
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=300, blank=True)
+    name = models.CharField(verbose_name="nazwa", max_length=100)
+    description = models.CharField(verbose_name="opis", max_length=300, blank=True)
     resistance = models.FloatField(
-        blank=True, null=True, help_text=_("Resistance in kg")
+        verbose_name="opór", blank=True, null=True, help_text=_("kg")
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -31,24 +31,30 @@ class Exercise(models.Model):
     Ćwiczenie w bazie - przykładowo pompki lub pływanie
     """
 
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=300, blank=True)
+    name = models.CharField(verbose_name="nazwa", max_length=100)
+    description = models.CharField(verbose_name="opis", max_length=300, blank=True)
     muscle_group = models.CharField(
-        max_length=100, blank=True, choices=MUSCLE_GROUP_CHOICES
+        verbose_name="grupa mięśni",
+        max_length=100,
+        blank=True,
+        choices=MUSCLE_GROUP_CHOICES,
     )
     equipment = models.ForeignKey(
         Equipment,
         on_delete=models.SET_NULL,
         related_name="exercises",
+        verbose_name="sprzęt",
         blank=True,
         null=True,
     )
     is_cardio = models.BooleanField(
-        default=False, help_text="Czy ćwiczenie jest cardio?"
+        verbose_name="cardio", default=False, help_text="Czy ćwiczenie jest cardio?"
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video_url = models.URLField(
-        blank=True, help_text="Link do filmiku instruktażowego z ćwiczeniem"
+        verbose_name="link",
+        blank=True,
+        help_text="Link do filmiku instruktażowego z ćwiczeniem",
     )
 
     def __str__(self):
@@ -145,8 +151,8 @@ class Workout(models.Model):
     """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.CharField(max_length=300, blank=True)
+    title = models.CharField(verbose_name="nazwa", max_length=100)
+    description = models.CharField(verbose_name="opis", max_length=300, blank=True)
     workout_plan = models.ManyToManyField(WorkoutPlan, through="WorkoutInPlan")
 
     def __str__(self):

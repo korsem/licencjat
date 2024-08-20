@@ -1,54 +1,54 @@
 {% extends 'main/base.html' %}
-{% block title %}Workout Stats Summary{% endblock %}
+{% block title %}Podsumowanie odbytych treningów{% endblock %}
 
 {% block content %}
-<h1>Workout Stats Summary</h1>
+<h1>Podsumowanie odbytych treningów</h1>
 
 {% if workout_stats %}
     <!-- Wyświetlanie dodatkowych statystyk -->
     <div class="summary-stats mb-4">
-        <p><strong>Average Satisfaction:</strong> {{ avg_satisfaction }}</p>
-        <p><strong>Average Well Being:</strong> {{ avg_well_being }}</p>
-        <p><strong>Completed Sessions in Active Plan:</strong> {{ active_plan_sessions_count }}</p>
-        <p><strong>Total Completed Sessions:</strong> {{ total_sessions_count }}</p>
+        <p><strong>Średnia satysfakcja:</strong> {{ avg_satisfaction }}</p>
+        <p><strong>Średnie samopoczucie:</strong> {{ avg_well_being }}</p>
+        <p><strong>Odbyte treningi w aktywnym planie:</strong> {{ active_plan_sessions_count }}</p>
+        <p><strong>Ilość odbytych treningów:</strong> {{ total_sessions_count }}</p>
     </div>
 
     <!-- Tabela z danymi o treningach -->
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Session Date</th>
-                <th>Description</th>
-                <th>Distance (km)</th>
-                <th>Duration</th>
-                <th>Avg Heart Rate</th>
-                <th>Max Heart Rate</th>
-                <th>Satisfaction</th>
-                <th>Well Being</th>
+                <th>Data sesji treningowej</th>
+                <th>Opis</th>
+                <th>Dystans (km)</th>
+                <th>Długość</th>
+                <th>Średnie tętno</th>
+                <th>Maksymalne tętno</th>
+                <th>Poziom satysfakcji (1-10)</th>
+                <th>Poziom samopoczucia (1-10)</th>
             </tr>
         </thead>
         <tbody>
             {% for stats in workout_stats %}
             <tr>
                 <td>{{ stats.workout_session.date }}</td>
-                <td>{{ stats.description }}</td>
-                <td>{{ stats.distance }}</td>
-                <td>{{ stats.duration }}</td>
-                <td>{{ stats.avg_heart_rate }}</td>
-                <td>{{ stats.max_heart_rate }}</td>
-                <td>{{ stats.satisfaction }}</td>
-                <td>{{ stats.well_being }}</td>
+                <td>{{ stats.description | default_if_none:'' }}</td>
+                <td>{{ stats.distance | default_if_none:'' }}</td>
+                <td>{{ stats.duration | default_if_none:'' }}</td>
+                <td>{{ stats.avg_heart_rate | default_if_none:'' }}</td>
+                <td>{{ stats.max_heart_rate | default_if_none:''}}</td>
+                <td>{{ stats.satisfaction | default_if_none:'' }}</td>
+                <td>{{ stats.well_being | default_if_none:'' }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8">No workout statistics available.</td>
+                <td colspan="8">Brak dostępnych statystyk.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 {% else %}
-    <p>No workout statistics available.</p>
+    <p>Brak dostępnych statystyk.</p>
 {% endif %}
 
-<a href="{% url 'home' %}" class="btn btn-secondary mt-3">Back to Home</a>
+<a href="{% url 'home' %}" class="btn btn-secondary mt-3">Wróc na stronę główną</a>
 {% endblock %}

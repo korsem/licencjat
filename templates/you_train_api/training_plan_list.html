@@ -3,7 +3,7 @@
 {% block title %}Training Plans{% endblock %}
 
 {% block content %}
-<h1>Training Plans</h1>
+<h1>Plany treningowe</h1>
 
 <ul>
     {% for plan in training_plans %}
@@ -14,12 +14,12 @@
         {% endif %}
         <p>{{ plan.description }}</p>
         {% if plan.is_active %}
-        <p><strong style="color: green;">This is the active training plan</strong></p>
+        <p><strong style="color: green;">To jest aktywny plan treningowy</strong></p>
         {% endif %}
-        <a href="{% url 'training_plan_detail' plan.id %}" class="btn btn-primary">View Details</a>
+        <a href="{% url 'training_plan_detail' plan.id %}" class="btn btn-primary">Pokaż szczegóły</a>
     </li>
     {% endfor %}
 </ul>
 
-<a href="{% url 'add_training_plan' %}" class="btn btn-secondary mt-4">Add Training Plan</a>
+<a href="{% url 'add_training_plan' %}" class="btn btn-secondary mt-4">Dodaj plan treningowy</a>
 {% endblock %}

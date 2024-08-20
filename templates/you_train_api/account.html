@@ -1,31 +1,24 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Account Settings{% endblock %}
+{% block title %}Ustawienia konta{% endblock %}
 
 {% block content %}
-<h1>Account Settings</h1>
+<h1>Ustawienia konta</h1>
 
-<h2>Your Information</h2>
+<h2>Twoje informacje</h2>
 <form method="post" action="{% url 'account' user_id=user.id %}">
     {% csrf_token %}
     {{ profile_form.as_p }}
-    <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
+    <button type="submit" name="update_profile" class="btn btn-primary">Zaktualizuj informacje</button>
 </form>
 
-<h2>Change Password</h2>
+<h2>Zmień hasło</h2>
 <form method="post" action="{% url 'account' user_id=user.id %}">
     {% csrf_token %}
     {{ password_form.as_p }}
-    <button type="submit" name="change_password" class="btn btn-primary">Change Password</button>
+    <button type="submit" name="change_password" class="btn btn-primary">Zmień hasło</button>
 </form>
 
-<h2>Settings</h2>
-<form method="post" action="{% url 'account' user_id=user.id %}">
-    {% csrf_token %}
-    {{ settings_form.as_p }}
-    <button type="submit" name="update_settings" class="btn btn-primary">Update Settings</button>
-</form>
-
-<p>Member since: {{ member_since }}</p>
+<p>Członek od: {{ member_since }}</p>
 
 {% endblock %}

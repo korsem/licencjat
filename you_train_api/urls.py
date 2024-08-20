@@ -30,6 +30,7 @@ from .views import (
     workout_stats_summary,
     add_segments_to_workout,
     delete_segment,
+    delete_equipment,
 )
 
 exercise_patterns = [
@@ -44,6 +45,11 @@ equipment_patterns = [
     path("", equipment_list, name="equipment_list"),
     path(
         "<int:equipment_id>/exercises/", equipment_exercises, name="equipment_exercises"
+    ),
+    path(
+        "delete/<int:equipment_id>/exercises/",
+        delete_equipment,
+        name="delete_equipment",
     ),
 ]
 

@@ -72,6 +72,7 @@ function saveExerciseDetails(addNext) {
     // Set duration fields to '00' if not provided
     duration_m = duration_1.padStart(2, '0') || '00';
     duration_s = duration_2.padStart(2, '0') || '00';
+    duration_h = duration_0.padStart(2, '0') || '00';
 
     if (!reps) {
         duration_0 = duration_0 || '00';
@@ -117,11 +118,6 @@ function saveExerciseDetails(addNext) {
     if (!addNext) {
         document.getElementById('exercise-details-modal').style.display = "none";
     }
-
-    // Optionally submit the form if this is the final exercise
-    // if (!addNext) {
-    //     document.getElementById('segment-form').submit();
-    // }
 
     resetExerciseDetailsForm();
 }

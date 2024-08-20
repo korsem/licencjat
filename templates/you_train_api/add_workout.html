@@ -9,14 +9,14 @@
     <link rel="stylesheet" type="text/css" href="{% static 'style/add_workout.css' %}">
 {% endblock %}
 
-<h1>Add New Workout</h1>
+<h1>Nowy trening</h1>
 
 <form id="workout-form" method="post">
     {% csrf_token %}
     {{ workout_form.as_p }}
 
 
-<button type="submit" class="btn btn-success mt-4" id="save-workout">Add segments</button>
+<button type="submit" class="btn btn-success mt-4" id="save-workout">Dodaj bloki treningowe</button>
 </form>
 
 <script src="{% static 'scripts/add_workout.js' %}"></script>

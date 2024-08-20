@@ -1,6 +1,6 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Sign up{% endblock %}
+{% block title %}Zarejestruj się{% endblock %}
 
 {% load crispy_forms_tags %}
 {% load static %}
@@ -44,16 +44,14 @@ form p {
 
 <div class="registration-header text-center mb-4">
     <img src="{% static 'images/logo.png' %}" alt="YouTrain Logo" class="bigger-logo">
-{#    moze wywalic bo duyzo trescoi#}
-    <h1 class="display-4">Join YouTrain!</h1>
-    <p class="lead">Plan. Train. Progress.</p>
-    <p>Transform your fitness journey with personalized plans and track your progress like never before!</p>
+    <h1 class="display-4">Dołącz do YouTrain!</h1>
+    <p class="lead">Planuj. Trenuj. Progresuj.</p>
 </div>
 
 <form method="post">
     {% csrf_token %}
     {{ form|crispy }}
-    <p>Have an account? Login <a href="/login">Here</a>!</p>
-    <button type="submit" class="btn btn-success">Register</button>
+    <p>Masz konto? Zaloguj się <a href="/login">tutaj</a>!</p>
+    <button type="submit" class="btn btn-success">Zarejestruj</button>
 </form>
 {% endblock %}

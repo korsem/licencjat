@@ -5,7 +5,6 @@ MUSCLE_GROUP_CHOICES = [
     ("lower", _("Lower Body")),
     ("core", _("Core")),
     ("full", _("Full Body")),
-    # ('cardio', _('Cardio')), i by sie czy cardio wywalilo, albo na podstawie tego przypisąło
     ("chest", _("Chest")),
     ("back", _("Back")),
     ("shoulders", _("Shoulders")),

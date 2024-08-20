@@ -43,15 +43,15 @@ form p {
 
 <div class="login-header text-center mb-4">
     <img src="{% static 'images/logo.png' %}" alt="YouTrain Logo" class="bigger-logo">
-    <h1 class="display-4">Welcome Back to YouTrain!</h1>
-    <p class="lead">Plan. Train. Progress.</p>
-    <p>Log in to continue your fitness journey and track your progress.</p>
+    <h1 class="display-4">Witaj z powrotem w YouTrain!</h1>
+    <p class="lead">Planuj. Trenuj. Progresuj.</p>
+    <p>Zaloguj się, aby kontynuować swoją sportową przygodę i śledzić swoje postępy.</p>
 </div>
 
 <form method="post">
     {% csrf_token %}
     {{ form|crispy }}
-    <p>Don't have an account? Create one <a href="/sign-up">Here</a>!</p>
+    <p>Nie masz konta? Stwórz <a href="/sign-up">tutaj</a>!</p>
     <button type="submit" class="btn btn-success">Login</button>
 </form>
 {% endblock %}

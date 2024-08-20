@@ -2,25 +2,87 @@
 
 {% block title %}Your Training Equipment{% endblock %}
 
+    <style>
+    /* Kontener dla listy sprzętu i formularza */
+    .equipment-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    /* Styl dla listy sprzętu */
+    .equipment-list {
+        width: 60%;
+    }
+
+    .equipment-list ul {
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .equipment-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Styl dla formularza dodawania sprzętu */
+    .equipment-form {
+        width: 35%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .equipment-form h2 {
+        margin-bottom: 20px;
+    }
+
+    .equipment-form button {
+        margin-top: 10px;
+    }
+
+    .btn-sm {
+        font-size: 0.85rem;
+        padding: 2px 6px;
+    }
+</style>
+
 {% block content %}
-<h1>Equipment</h1>
 
-<ul>
-    {% for equipment in equipments %}
-    <li>
-        <a href="{% url 'equipment_exercises' equipment.id %}">
-            {{ equipment.name }}{% if equipment.resistance %} - {{ equipment.resistance }} kg{% endif %}
-        </a>
-        {% if equipment.description %}- {{ equipment.description }}{% endif %}
-    </li>
-    {% endfor %}
-</ul>
 
-<h2>Just got new equipment? Save it!</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Add new equipment</button>
-</form>
-    <p>Already got some great exercises in mind with this equipment? Don't forget to add it! <a href="{% url 'add_exercise' %}" class="btn btn-secondary">Add Exercise</a></p>
+
+<div class="equipment-container">
+    <div class="equipment-list">
+        <h1>Sprzęt treningowy</h1>
+        <ul>
+            {% for equipment in equipments %}
+            <li>
+                <a href="{% url 'equipment_exercises' equipment.id %}">
+                    {{ equipment.name }}{% if equipment.resistance %} - {{ equipment.resistance }} kg{% endif %}
+                </a>
+                {% if equipment.description %}- {{ equipment.description }}{% endif %}
+
+                <!-- Formularz usuwania -->
+                <form method="post" action="{% url 'delete_equipment' equipment.id %}" style="display:inline;" onsubmit="return confirm('Czy na pewno chcesz usunąć ten sprzęt?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="equipment-form">
+        <h2>Dodaj nowy sprzęt treningowy</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Dodaj sprzęt</button>
+        </form>
+        <p>Masz już w głowie jakieś świetne ćwiczenia z tym sprzętem? Nie zapomnij ich dodać!  <a href="{% url 'add_exercise' %}" class="btn btn-secondary">Dodaj ćwiczenie</a></p>
+    </div>
+</div>
 {% endblock %}
+
+

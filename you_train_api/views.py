@@ -27,7 +27,6 @@ from you_train_api.forms import (
     TrainingPlanForm,
     WorkoutPlanForm,
     UserProfileForm,
-    UserSettingsForm,
     WorkoutForm,
     ExerciseInSegmentForm,
     WorkoutSegmentForm,
@@ -151,25 +150,17 @@ def sign_up(request):
     return render(request, "registration/sign_up.html", {"form": form})
 
 
-# TODO: ogarnąć ten widok, bo jest na brudno
 @login_required
 def account(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
     if request.method == "POST":
         profile_form = UserProfileForm(request.POST, instance=user)
-        settings_form = UserSettingsForm(request.POST)
         password_form = PasswordChangeForm(user, request.POST)
 
         if "update_profile" in request.POST:
             if profile_form.is_valid():
                 profile_form.save()
-                return redirect("account", user_id=user_id)
-        elif "update_settings" in request.POST:
-            if settings_form.is_valid():
-                # Update user settings here (e.g., save to user profile model or session)
-                request.session["language"] = settings_form.cleaned_data["language"]
-                request.session["theme"] = settings_form.cleaned_data["theme"]
                 return redirect("account", user_id=user_id)
         elif "change_password" in request.POST:
             if password_form.is_valid():
@@ -178,12 +169,6 @@ def account(request, user_id):
                 return redirect("account", user_id=user_id)
     else:
         profile_form = UserProfileForm(instance=user)
-        settings_form = UserSettingsForm(
-            initial={
-                "language": request.session.get("language", "en"),
-                "theme": request.session.get("theme", "light"),
-            }
-        )
         password_form = PasswordChangeForm(user)
 
     return render(
@@ -191,7 +176,6 @@ def account(request, user_id):
         "you_train_api/account.html",
         {
             "profile_form": profile_form,
-            "settings_form": settings_form,
             "password_form": password_form,
             "member_since": user.date_joined,
         },
@@ -311,6 +295,13 @@ def equipment_list(request):
         "you_train_api/equipment_list.html",
         {"equipments": equipments, "form": form},
     )
+
+
+@login_required(login_url="/login")
+def delete_equipment(request, equipment_id):
+    equipment = get_object_or_404(Equipment, id=equipment_id, user=request.user)
+    equipment.delete()
+    return redirect("equipment_list")
 
 
 @login_required(login_url="/login")
@@ -450,6 +441,7 @@ def training_plan_detail(request, training_plan_id):
     )
 
 
+@login_required(login_url="/login")
 def workout_list(request):
     workouts = Workout.objects.filter(user=request.user)
     return render(request, "you_train_api/workout_list.html", {"workouts": workouts})
@@ -761,6 +753,7 @@ def active_plan_detail(request):
     return render(request, "you_train_api/active_plan_detail.html")
 
 
+@login_required(login_url="/login")
 def workout_stats_summary(request):
     workout_stats = WorkoutStats.objects.filter(
         workout_session__workout__user=request.user
@@ -775,9 +768,12 @@ def workout_stats_summary(request):
     active_plan_sessions_count = WorkoutSession.objects.filter(
         workout__workout_plan__training_plan__is_active=True,
         workout__workout_plan__training_plan__user=request.user,
+        is_completed=True,
     ).count()
 
-    total_sessions_count = workout_stats.count()
+    total_sessions_count = WorkoutSession.objects.filter(
+        workout__workout_plan__training_plan__user=request.user, is_completed=True
+    ).count()
 
     return render(
         request,

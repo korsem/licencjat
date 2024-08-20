@@ -64,16 +64,20 @@
 }
 
 .button-grid {
-    display: grid;
+    display: flex;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
     margin-top: 20px;
+    align-items: center;
 }
 
-.btn {
-    width: 100%;
-    text-align: center;
+.button-inline {
+    display: flex;
+    gap: 16px; /* Odstęp między przyciskami */
+    margin-top: 20px;
+    align-items: center; /* Wyrównanie przycisków w pionie */
 }
+
 
 .button-gap {
     margin-bottom: 24px;

@@ -96,7 +96,7 @@ class BaseTrainingPlanPDF:
     def add_footer(self, canvas, doc):
         canvas.saveState()
         footer = Paragraph(
-            f'Generated on {datetime.now().strftime("%d-%m-%Y %H:%M:%S")}',
+            f'Wygenerowano {datetime.now().strftime("%d-%m-%Y %H:%M:%S")}',
             self.styles["Footer"],
         )
         w, h = footer.wrap(doc.width, doc.bottomMargin)

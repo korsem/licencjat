@@ -14,33 +14,33 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Segments</h2>
+        <h2>Bloki treningowe</h2>
         {% for segment in workout.segments.all %}
         <div class="segment-form mb-3" id="segment-{{ forloop.counter0 }}">
-            <h3>Segment {{ forloop.counter }}</h3> <!-- Title with segment number -->
+            <h3>Blok {{ forloop.counter }}</h3> <!-- Title with segment number -->
             <div class="form-group">
-                <label>Reps:</label>
+                <label>Powtórzenia:</label>
                 <p>{{ segment.reps }}</p>
             </div>
             <div class="form-group">
-                <label>Rest Time (m:s):</label>
+                <label>Przerwa (m:s):</label>
                 <p>{{ segment.rest_time  | default_if_none:'-'}}</p>
             </div>
             <div class="form-group">
-                <label>Notes:</label>
+                <label>Notatki:</label>
                 <p>{{ segment.notes }}</p>
             </div>
 
-            <h4>Exercises</h4>
+            <h4>Ćwiczenia</h4>
             <div class="exercise-formset" id="exercise-formset-{{ forloop.counter0 }}">
                 <table class="table" id="exercise-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Reps</th>
-                            <th>Duration (h:m:s)</th>
-                            <th>Rest Time (m:s)</th>
-                            <th>Notes</th>
+                            <th>Nazwa</th>
+                            <th>Powtórzenia</th>
+                            <th>Czas wykonywania (h:m:s)</th>
+                            <th>Czas przerwy (m:s)</th>
+                            <th>Notatki</th>
                         </tr>
                     </thead>
                     <tbody id="exercise-table-body-{{ forloop.counter0 }}">
@@ -58,28 +58,26 @@
             </div>
           <form method="post" action="{% url 'delete_segment' segment.id %}" style="display:inline;" onsubmit="return confirmDeleteSegment('{{ segment.id }}');">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete Segment</button>
+                <button type="submit" class="btn btn-danger">Usuń blok</button>
             </form>
         </div>
         {% empty %}
-        <p>No segments found.</p>
+        <p>Nie znaleziono bloków treningowych.</p>
         {% endfor %}
     </div>
 
 </div>
 
-    <div class="button-grid">
-
-    <a href="{% url 'add_segments_to_workout' workout.id %}" class="btn btn-success mt-3">Add segments</a>
+<div class="button-inline">
+    <a href="{% url 'add_segments_to_workout' workout.id %}" class="btn btn-success mt-3">Dodaj blok treningowy</a>
     <!-- Delete Workout Button -->
-    <form method="post" action="{% url 'delete_workout' workout.id %}" style="display:inline;" onsubmit="return confirmDelete();">
+    <form method="post" action="{% url 'delete_workout' workout.id %}" onsubmit="return confirmDelete();">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete Workout</button>
+        <button type="submit" class="btn btn-danger">Usuń trening</button>
     </form>
     </div>
 
 
-    <div class="button-gap"></div>
 
 {% endblock %}
 
