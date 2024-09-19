@@ -1,7 +1,7 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}Add Segment to Workout{% endblock %}
+{% block title %}Dodaj blok treningowy do treningu{% endblock %}
 
 {% block content %}
 
@@ -9,14 +9,14 @@
     <link rel="stylesheet" type="text/css" href="{% static 'style/add_workout.css' %}">
 {% endblock %}
 
-<h1>Add Segment to Workout</h1>
+<h1>Dodaj blok treningowy do treningu</h1>
 
 <form id="workout-segment-form" method="post">
     {% csrf_token %}
     
     <div id="segment-form">
         <div class="segment-form mb-3" id="segment">
-            <h3>Segment</h3>
+            <h3>Blok treningowy</h3>
             <div class="form-group">
                 {{ segment_form.reps.label_tag }}
                 {{ segment_form.reps }}
@@ -36,11 +36,11 @@
                 <table class="table" id="exercise-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Reps</th>
-                            <th>Duration (h:m:s)</th>
-                            <th>Rest Time (m:s)</th>
-                            <th>Notes</th>
+                            <th>Nazwa</th>
+                            <th>Powtórzenia</th>
+                            <th>Czas trwania (h:m:s)</th>
+                            <th>Czas przerwy (m:s)</th>
+                            <th>Notatki</th>
                         </tr>
                     </thead>
                     <tbody id="exercise-table-body">
@@ -55,7 +55,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <button type="button" class="btn btn-secondary add-exercise">Add Exercise</button>
+                <button type="button" class="btn btn-secondary add-exercise">Dodaj ćwiczenie</button>
             </div>
         </div>
     </div>
@@ -64,10 +64,10 @@
             <div id="exercise-modal" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <h2>Select Exercises</h2>
+                    <h2>Wybierz ćwiczenie</h2>
                     <form id="exercise-search-form">
                         <input type="text" id="search-query" placeholder="Search exercises...">
-                        <button type="button" id="search-button">Search</button>
+                        <button type="button" id="search-button">Szukaj</button>
                     </form>
                     <div id="exercise-list" class="exercise-list">
                         <!-- List of exercises will be loaded here -->
@@ -78,7 +78,7 @@
             <div id="exercise-details-modal" class="modal">
                 <div class="modal-content">
                     <span class="close-details">&times;</span>
-                    <h2 id="exercise-details-title">Exercise Details</h2>
+                    <h2 id="exercise-details-title">Szczegóły ćwiczenia</h2>
                     <form id="exercise-details-form">
                         <input type="hidden" id="selected-exercise-id">
                         <div class="form-group">
@@ -114,8 +114,8 @@
                 </div>
             </div>
 
-    <button type="submit" class="btn btn-success mt-4" id="save-segment">Save Segment</button>
-    <button type="submit" class="btn btn-success mt-4" name="save_and_add_next" value="save_and_add_next">Save and Add Next Segment</button>
+    <button type="submit" class="btn btn-success mt-4" id="save-segment">Zapisz blok treningowy</button>
+    <button type="submit" class="btn btn-success mt-4" name="save_and_add_next" value="save_and_add_next">Zapisz i dodaj nowy</button>
 
     </div>
 

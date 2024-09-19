@@ -68,7 +68,7 @@
 <ul>
     {% for exercise in exercises %}
     <li>
-        <a href="{% url 'exercise_detail' exercise.id %}">{{ exercise.name }}</a> - {{ exercise.description }} - {{ exercise.muscle_group }} - {{ exercise.equipment }}
+        <a href="{% url 'exercise_detail' exercise.id %}">{{ exercise.name }}</a> - {{ exercise.description | default_if_none:''}} - {{ exercise.muscle_group }} - {{ exercise.equipment | default_if_none:'bez sprzętu'}}
     </li>
     {% endfor %}
 </ul>
