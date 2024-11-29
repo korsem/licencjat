@@ -1,3 +1,6 @@
+# YouTrain
+### A web application for scheduling workouts made using Django templates.
+
 ## Requirements 
 * Python 
 * Django 
