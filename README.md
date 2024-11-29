@@ -1,7 +1,6 @@
 ## Requirements 
 * Python 
 * Django 
-* Django Rest framework
 * PostgreSQL
 
 ## Installation
